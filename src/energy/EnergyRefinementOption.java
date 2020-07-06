@@ -21,7 +21,7 @@ public class EnergyRefinementOption implements Option {
 	
 	@Override
 	public boolean isAllowed(Game game) {
-		return game.hand.getOrDefault(EnergyType.RAW, 0) >= 2;
+		return game.deck.getOrDefault(EnergyType.RAW, 0) >= 2;
 	}
 	
 	@Override

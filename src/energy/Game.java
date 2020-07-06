@@ -17,7 +17,6 @@ public class Game {
 		deck.put(EnergyType.EARTH, 2);
 		deck.put(EnergyType.WATER, 2);
 		discard = new HashMap<EnergyType, Integer>();
-		hand = new HashMap<EnergyType, Integer>();
 		turnNum = 1;
 		playerWalls = 10;
 		numGolems = 0;
@@ -28,32 +27,31 @@ public class Game {
 		researchCosts = ResearchCosts.BaseCosts();
 		focused = false;
 		enemy = new Enemy();
-		handSize = 6;
 	}
 	
 	boolean hasWater(int n) {
-		return hand.getOrDefault(EnergyType.WATER, 0) >= n;
+		return deck.getOrDefault(EnergyType.WATER, 0) >= n;
 	}
 	boolean hasAir(int n) {
-		return hand.getOrDefault(EnergyType.AIR, 0) >= n;
+		return deck.getOrDefault(EnergyType.AIR, 0) >= n;
 	}
 	boolean hasEarth(int n) {
-		return hand.getOrDefault(EnergyType.EARTH, 0) >= n;
+		return deck.getOrDefault(EnergyType.EARTH, 0) >= n;
 	}
 	boolean hasFire(int n) {
-		return hand.getOrDefault(EnergyType.FIRE, 0) >= n;
+		return deck.getOrDefault(EnergyType.FIRE, 0) >= n;
 	}
 	boolean hasRaw(int n) {
-		return hand.getOrDefault(EnergyType.RAW, 0) >= n;
+		return deck.getOrDefault(EnergyType.RAW, 0) >= n;
 	}
 	
 	void spend(EnergyType type, int n) throws IllegalStateException {
-		int newVal = hand.getOrDefault(type, 0) - n;
+		int newVal = deck.getOrDefault(type, 0) - n;
 		if (newVal < 0) {
 			throw new IllegalStateException("Cannot spend " + n + " " + EnergyType.name(type) + " cards when there are only "
-					+ hand.getOrDefault(type, 0) + " in hand.");
+					+ deck.getOrDefault(type, 0) + " in deck.");
 		} else {
-			hand.put(type, newVal);
+			deck.put(type, newVal);
 		}
 	}
 	void insert(EnergyType type, int n) {
@@ -61,12 +59,14 @@ public class Game {
 	}
 	
 	void win() {
+		Printer.flush();
 		System.out.println("Congratulations you won!! Press any key to exit");
 		try { System.in.read(); } catch (IOException e) { }
 		System.exit(0);
 	}
 	
 	void lose() {
+		Printer.flush();
 		System.out.println("Your base has been overriden and the capitalistic pigs have taken the Energy Spring for themselves.");
 		System.out.println("Better luck next time! Press any key to exit");
 		try { System.in.read(); } catch (IOException e) { }
@@ -102,47 +102,24 @@ public class Game {
 		Printer.printlnRight("Prayer cost(" + EnergyType.name(EnergyType.AIR) + "): "
 			+ getValByLevel(researchCosts::PrayerCost, lvl));
 		Printer.printlnRight("Remaining prayers: " + getValByLevel(Prayers::numPrayers, lvl));
-		Printer.printlnRight("Today's current " + EnergyType.name(EnergyType.AIR) + " donations: " + airDonations);
-	}
-	
-	private EnergyType drawRandomCard() {
-		int numCards = 0;
-		for (int n : deck.values())
-			numCards += n;
-		int index = (int)(numCards * Math.random());
-		for (Map.Entry<EnergyType, Integer> entry : deck.entrySet()) {
-			index -= entry.getValue();
-			if (index < 0)
-				return entry.getKey();
-		}
-		throw new RuntimeException("You fucked up the weighted random function");
 	}
 	
 	private int mapSize(Map<EnergyType, Integer> m) {
 		return m.values().stream().reduce(0, (x, y) -> x + y, (x, y) -> x + y);
 	}
 	
-	private void playHand() {
-		printInfo();
-		// Draw a new hand
-		Printer.printlnLeft(Format.ANSI_CYAN + "Drawing a new hand..." + Format.ANSI_RESET);
-		for (int i = 0; i < handSize && mapSize(deck) > 0; i++) {
-			EnergyType type = drawRandomCard();
-			deck.put(type, deck.get(type) - 1);
-			hand.put(type, hand.getOrDefault(type, 0) + 1);
-		}
-		
+	private void playCards() {
 		// Keep making choices until the player discards the rest of the cards
 		class BoolHolder {
 			boolean val = false;
 		}
 		final BoolHolder done = new BoolHolder();
 		while (!done.val) {
-			if (mapSize(hand) == 0)
+			if (mapSize(deck) == 0)
 				break;
-			// Print the hand to the user
-			Printer.printLeft("Your hand: ");
-			printMap(hand);
+			Printer.printLeft("Your deck: ");
+			printInfo();
+			printMap(deck);
 			// Get the list of all possible actions
 			List<Option> options = new ArrayList<Option>();
 			options.add(new Option() {
@@ -158,7 +135,7 @@ public class Game {
 			options.add(EnergySpringOption.get(numEnergySprings));
 			options.addAll(DefensiveSpells.getOptions());
 			options.addAll(OffensiveSpells.getOptions());
-			options.add(Prayers.offer);
+			options.addAll(Prayers.getOptions());
 			
 			// Filter the list to only allowed actions
 			Option[] filteredOptions = options.stream().filter(o -> o.isAllowed(this)).toArray(Option[]::new);
@@ -178,24 +155,15 @@ public class Game {
 			}
 		}
 		
-		// Discard the rest of the hand
-		for (Map.Entry<EnergyType, Integer> entry : hand.entrySet())
+		// Discard the rest of the deck
+		for (Map.Entry<EnergyType, Integer> entry : deck.entrySet())
 			discard.merge(entry.getKey(), entry.getValue(), (x, y) -> x + y);
-		hand.clear();
 	}
 
 	private void playDay() {
 		System.out.println("======================================== DAY " + turnNum + " =======================================");
-		Printer.printLeft("Your deck: ");
-		printMap(deck);
-		// 1: Play all the hands
-		while (mapSize(deck) > 0) {
-			playHand();
-		}
-		
-		// 1.5: Handle prayers
-		Prayers.getPrayers(this);
-		airDonations = 0;
+		// 1: Play cards
+		playCards();
 		
 		// 2: Handle golem damage
 		enemyWalls -= numGolems;
@@ -222,10 +190,7 @@ public class Game {
 	
 	Map<EnergyType, Integer> deck;
 	Map<EnergyType, Integer> discard;
-	Map<EnergyType, Integer> hand;
 	private int turnNum;
-	int handSize;
-	int airDonations;
 	int playerWalls;
 	int numGolems;
 	int numFireGolems;

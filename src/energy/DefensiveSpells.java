@@ -143,7 +143,7 @@ class DefensiveSpells {
 		@Override
 		public boolean isAllowed(Game game) {
 			for (Map.Entry<EnergyType, Integer> entry : cost.entrySet()) {
-				if (game.hand.getOrDefault(entry.getKey(), 0) < entry.getValue()) {
+				if (game.deck.getOrDefault(entry.getKey(), 0) < entry.getValue()) {
 					return false;
 				}
 			}

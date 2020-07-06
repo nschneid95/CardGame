@@ -2,24 +2,26 @@ package energy;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 public class Prayers {
 	
-	public static Option offer = new MultiOption("Offer air to your guardian spirit", Offer.all);
-	
-	public static void getPrayers(Game game) {
-		for (int lvl = maxLevel; lvl > 0; lvl--) {
-			List<Prayer> prayers = remaining.get(lvl);
-			while (prayers.size() > 0 && game.airDonations >= game.researchCosts.PrayerCost(lvl)) {
-				game.airDonations -= game.researchCosts.PrayerCost(lvl);
-				int index = (int)(Math.random() * prayers.size());
-				Prayer p = prayers.remove(index);
-				p.execute(game);
-				Printer.printlnLeft(Format.ANSI_CYAN + p.text() + Format.ANSI_RESET);
-			}
+	public static List<Option> getOptions() {
+		List<Option> ret = new LinkedList<Option>();
+		switch (maxLevel) {
+		case 3:
+			ret.add(Research.levelThree);
+		case 2:
+			ret.add(Research.levelTwo);
+		case 1:
+			ret.add(Research.levelOne);
+			break;
+		default:
+			throw new IllegalStateException("Unexpected defensive maxLevel: " + maxLevel);
 		}
+		return ret;
 	}
 	
 	public static int numPrayers(int level) {
@@ -28,40 +30,40 @@ public class Prayers {
 	
 	private static int maxLevel = 1;
 	
-	private static class Offer implements Option {
-		static List<Option> all = List.of(
-				new Offer(1), new Offer(2),
-				new Offer(3), new Offer(4),
-				new Offer(5), new Offer(6),
-				new Offer(7), new Offer(8),
-				new Offer(9), new Offer(10));
+	static class Research implements Option {
 		
-		Offer(int n) {
-			this.n = n;
+		public static Option levelOne = new Research(1);
+		public static Option levelTwo = new Research(2);
+		public static Option levelThree = new Research(3);
+		
+		private Research(int level) {
+			this.level = level;
 		}
 		
 		@Override
 		public String text() {
-			return "Sacrifice " + n + " Air energy as an offering to your guardian spirit";
+			return "Request a new level " + level + " prayer";
 		}
 		
 		@Override
 		public boolean isAllowed(Game game) {
-			return n > 0 && game.hasAir(n);
+			return game.hasAir(game.researchCosts.PrayerCost(level)) && remaining.get(level).size() > 0;
 		}
 		
 		@Override
 		public void execute(Game game) throws IllegalStateException {
-			game.spend(EnergyType.AIR, n);
-			game.airDonations += n;
+			game.spend(EnergyType.AIR, game.researchCosts.PrayerCost(level));
+			Prayer p = remaining.get(level).remove((int)(Math.random() * remaining.get(level).size()));
+			Printer.printlnLeft(Format.ANSI_CYAN + p.text() + Format.ANSI_RESET);
+			p.execute(game);
 		}
 		
-		private int n;
+		private int level;
 	}
-
+	
 	private static Map<Integer, List<Prayer>> remaining = new HashMap<Integer, List<Prayer>>(Map.of(
-			1, new ArrayList<Prayer>(List.of(new NextLevel(), new ResearchPoint(), new HandSize(1), new Channel(EnergyType.AIR))),
-			2, new ArrayList<Prayer>(List.of(new Channel(EnergyType.WATER), new HandSize(2), new ResearchPoint(), new NextLevel())),
+			1, new ArrayList<Prayer>(List.of(new NextLevel(), new ResearchPoint(), new Channel(EnergyType.AIR))),
+			2, new ArrayList<Prayer>(List.of(new Channel(EnergyType.WATER), new ResearchPoint(), new NextLevel())),
 			3, new ArrayList<Prayer>(List.of(new Channel(EnergyType.EARTH), new Channel(EnergyType.FIRE), new ResearchPoint()))));
 	//TODO Add energy storage
 	
@@ -98,24 +100,6 @@ public class Prayers {
 		public String text() {
 			return "Research Point gained!";
 		}
-	}
-	
-	private static class HandSize implements Prayer {
-		HandSize(int increase) {
-			this.increase = increase;
-		}
-		
-		@Override
-		public void execute(Game game) {
-			game.handSize += increase;
-		}
-		
-		@Override
-		public String text() {
-			return "Hand size increased by " + increase;
-		}
-		
-		private final int increase;
 	}
 	
 	private static class Channel implements Prayer {
