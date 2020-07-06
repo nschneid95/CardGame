@@ -23,7 +23,7 @@ public class Game {
 		numFireGolems = 0;
 		enemyWalls = 10;
 		baseEnergy = 8 - difficulty;
-		numEnergySprings = 0;
+		numEnergySprings = 5;
 		researchCosts = ResearchCosts.BaseCosts();
 		focused = false;
 		enemy = new Enemy();
@@ -59,17 +59,24 @@ public class Game {
 			deck.put(type, newVal);
 		}
 	}
-	void steal(EnergyType type, int n) {
+	int steal(EnergyType type, int n) {
 		if (energyShieldLifetime > 0)
-			return;
-		int newVal = deck.getOrDefault(type, 0) - n;
-		newVal = newVal > 0 ? newVal : 0;
-		deck.put(type, newVal);
+			return 0;
+		int curr = deck.getOrDefault(type, 0);
+		if (curr >= n) {
+			deck.put(type, curr - n);
+			return n;
+		} else {
+			deck.put(type, 0);
+			return curr;
+		}
 	}
-	void stealAll(EnergyType type) {
+	int stealAll(EnergyType type) {
 		if (energyShieldLifetime > 0)
-			return;
+			return 0 ;
+		int curr = deck.getOrDefault(type, 0);
 		deck.put(type, 0);
+		return curr;
 	}
 	void insert(EnergyType type, int n) {
 		discard.merge(type, n, (x, y) -> x + y);
@@ -94,17 +101,18 @@ public class Game {
 	void buildWalls(int amt) { playerWalls += amt; }
 	void buildTempWalls(int amt) { tempWalls += amt; }
 	void buildEnemyWalls(int amt) { enemyWalls += amt; }
-	void dealDamage(int amt) {
+	int dealDamage(int amt) {
 		if (focused)
 			amt *= 2;
 		focused = false;
 		enemyWalls -= amt;
 		if (enemyWalls <= 0)
 			win();
+		return amt;
 	}
-	void takeDamage(int amt) {
+	int takeDamage(int amt) {
 		if (hasShield)
-			return;
+			return 0;
 		if (mirrorShieldLifetime > 0) {
 			enemyWalls -= amt;
 			if (enemyWalls <= 0)
@@ -112,25 +120,26 @@ public class Game {
 		}
 		if (tempWalls >= amt) {
 			tempWalls -= amt;
-			return;
+			return 0;
 		}
 		amt -= tempWalls;
 		tempWalls = 0;
 		if (numGolems >= amt) {
 			numGolems -= amt;
-			return;
+			return 0;
 		}
 		amt -= numGolems;
 		numGolems = 0;
 		if (numFireGolems >= amt) {
 			numFireGolems -= amt;
-			return;
+			return 0;
 		}
 		amt -= numFireGolems;
 		numFireGolems = 0;
 		playerWalls -= amt;
 		if (playerWalls <= 0)
 			lose();
+		return amt;
 	}
 	
 	// Golems

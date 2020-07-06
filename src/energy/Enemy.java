@@ -78,10 +78,9 @@ public class Enemy {
 				continue;
 			int index = (int)(Math.random() * list.size());
 			Move m = list.remove(index);
-			String text = m.text();
+			String text = m.execute(game);
 			text = text.substring(0, 1).toUpperCase() + text.substring(1).toLowerCase();
 			Printer.printlnLeft(Format.obj.ANSI_CYAN() + text + Format.obj.ANSI_RESET());
-			m.execute(game);
 			return;
 		}
 		// If you run out of turns, you lose
@@ -91,8 +90,7 @@ public class Enemy {
 	private Map<Integer, List<Move>> moves;
 	
 	private static interface Move {
-		void execute(Game game);
-		String text();
+		String execute(Game game);
 	}
 			
 	private static class Chain implements Move {
@@ -103,14 +101,8 @@ public class Enemy {
 		}
 		
 		@Override
-		public void execute(Game game) {
-			m1.execute(game);
-			m2.execute(game);
-		}
-		
-		@Override
-		public String text() {
-			return m1.text() + " and " + m2.text();
+		public String execute(Game game) {
+			return m1.execute(game) + " and " + m2.execute(game);
 		}
 		
 		private Move m1, m2;
@@ -122,13 +114,15 @@ public class Enemy {
 		}
 			
 		@Override
-		public void execute(Game game) {
-			game.takeDamage(dmg);
-		}
-		
-		@Override
-		public String text() {
-			return "the enemy deals " + dmg + " damage to you";
+		public String execute(Game game) {
+			int actual = game.takeDamage(dmg);
+			if (actual == dmg) {
+				return "the enemy deals " + dmg + " damage to you";
+			} else if (actual > 0) {
+				return "the enemy tries to deal " + dmg + " damage, but only " + actual + " gets through";
+			} else {
+				return "the enemy tries to deal " + dmg + " damage, but it's all blocked";
+			}
 		}
 		
 		private int dmg;
@@ -141,13 +135,15 @@ public class Enemy {
 		}
 		
 		@Override
-		public void execute(Game game) {
-			game.steal(type, amt);
-		}
-		
-		@Override
-		public String text() {
-			return "the enemy steals up to " + amt + " " + EnergyType.name(type) + " energy from you";
+		public String execute(Game game) {
+			int actual = game.steal(type, amt);
+			if (actual > 0) {
+				return "the enemy steals " + actual + " " + EnergyType.name(type) + Format.obj.ANSI_CYAN()
+						 + " energy from you";
+			} else {
+				return "the enemy tries to steal " + EnergyType.name(type) + Format.obj.ANSI_CYAN()
+						+ " energy from you but fails";
+			}
 		}
 		
 		private int amt;
@@ -160,13 +156,15 @@ public class Enemy {
 		}
 		
 		@Override
-		public void execute(Game game) {
-			game.stealAll(type);
-		}
-		
-		@Override
-		public String text() {
-			return "the enemy steals all your " + EnergyType.name(type) + " from you";
+		public String execute(Game game) {
+			int actual = game.stealAll(type);
+			if (actual > 0) {
+				return "the enemy steals all your " + EnergyType.name(type) + Format.obj.ANSI_CYAN()
+						+ " from you";
+			} else {
+				return "the enemey tries to steal all your " + EnergyType.name(type) + Format.obj.ANSI_CYAN()
+						+ " but fails";
+			}
 		}
 		
 		private EnergyType type;
@@ -178,24 +176,16 @@ public class Enemy {
 		}
 		
 		@Override
-		public void execute(Game game) {
+		public String execute(Game game) {
 			game.buildEnemyWalls(amt);
-		}
-		
-		@Override
-		public String text() {
 			return "the enemy rebuilds " + amt + " walls";
 		}
-		
 		private int amt;
 	}
 	
 	private static class Pass implements Move {
 		@Override
-		public void execute(Game game) {}
-		
-		@Override
-		public String text() {
+		public String execute(Game game) {
 			return "the enemy prepares...";
 		}
 	}
