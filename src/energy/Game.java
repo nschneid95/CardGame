@@ -12,7 +12,7 @@ public class Game {
 	public Game(int difficulty) {
 		deck = new HashMap<EnergyType, Integer>();
 		deck.put(EnergyType.RAW, 8);
-		deck.put(EnergyType.AIR, 2);
+		deck.put(EnergyType.AIR, 200);
 		deck.put(EnergyType.FIRE, 2);
 		deck.put(EnergyType.EARTH, 2);
 		deck.put(EnergyType.WATER, 2);
