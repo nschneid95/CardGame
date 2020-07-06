@@ -69,9 +69,9 @@ class DefensiveSpells {
 		@Override
 		public void execute(Game game) throws IllegalStateException {
 			game.spend(EnergyType.WATER, game.researchCosts.spellCost(level));
-			Printer.printlnLeft(Format.ANSI_CYAN + "You learned: " + Format.ANSI_RESET
+			Printer.printlnLeft(Format.obj.ANSI_CYAN() + "You learned: " + Format.obj.ANSI_RESET()
 					+ unknown.get(level).remove((int)(Math.random() * unknown.get(level).size())).description()
-					+ Format.ANSI_RESET);
+					+ Format.obj.ANSI_RESET());
 			
 		}
 		

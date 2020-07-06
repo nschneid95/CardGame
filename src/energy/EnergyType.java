@@ -14,15 +14,15 @@ public enum EnergyType {
 	public static String name(EnergyType type) {
 		switch (type) {
 		case RAW:
-			return Format.ANSI_PURPLE + "Raw" + Format.ANSI_RESET;
+			return Format.obj.ANSI_PURPLE() + "Raw" + Format.obj.ANSI_RESET();
 		case EARTH:
-			return Format.ANSI_GREEN + "Earth" + Format.ANSI_RESET;
+			return Format.obj.ANSI_GREEN() + "Earth" + Format.obj.ANSI_RESET();
 		case WATER:
-			return Format.ANSI_BLUE + "Water" + Format.ANSI_RESET;
+			return Format.obj.ANSI_BLUE() + "Water" + Format.obj.ANSI_RESET();
 		case AIR:
-			return Format.ANSI_YELLOW + "Air" + Format.ANSI_RESET;
+			return Format.obj.ANSI_YELLOW() + "Air" + Format.obj.ANSI_RESET();
 		case FIRE:
-			return Format.ANSI_RED + "Fire" + Format.ANSI_RESET;
+			return Format.obj.ANSI_RED() + "Fire" + Format.obj.ANSI_RESET();
 		default:
 			throw new RuntimeException("Unexpected energy type: " + type);
 		}

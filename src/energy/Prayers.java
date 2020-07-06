@@ -63,7 +63,7 @@ public class Prayers {
 		public void execute(Game game) throws IllegalStateException {
 			game.spend(EnergyType.AIR, game.researchCosts.prayerCost(level));
 			Prayer p = remaining.get(level).remove((int)(Math.random() * remaining.get(level).size()));
-			Printer.printlnLeft(Format.ANSI_CYAN + p.text() + Format.ANSI_RESET);
+			Printer.printlnLeft(Format.obj.ANSI_CYAN() + p.text() + Format.obj.ANSI_RESET());
 			p.execute(game);
 		}
 		
@@ -137,9 +137,9 @@ public class Prayers {
 		
 		@Override
 		public String text() {
-			return "The mythical " + EnergyType.name(type) + Format.ANSI_CYAN + " Channel appears in your hands! "
-					+ EnergyType.name(EnergyType.RAW) + Format.ANSI_CYAN + " can now be converted to "
-					+ EnergyType.name(type) + Format.ANSI_CYAN + " more efficiently!";
+			return "The mythical " + EnergyType.name(type) + Format.obj.ANSI_CYAN() + " Channel appears in your hands! "
+					+ EnergyType.name(EnergyType.RAW) + Format.obj.ANSI_CYAN() + " can now be converted to "
+					+ EnergyType.name(type) + Format.obj.ANSI_CYAN() + " more efficiently!";
 		}
 		
 		private final EnergyType type;

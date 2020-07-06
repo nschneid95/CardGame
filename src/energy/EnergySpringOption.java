@@ -32,7 +32,7 @@ public class EnergySpringOption implements Option {
 
 	@Override
 	public String text() {
-		return "Fortify the " + Format.rainbow("energy spring") + ". 1 " +
+		return "Fortify the " + Format.obj.rainbow("energy spring") + ". 1 " +
 				EnergyType.name(EnergyType.EARTH) + ", 1 " + 
 				EnergyType.name(EnergyType.AIR) + ", 1 " +
 				EnergyType.name(EnergyType.FIRE) + ", 1 " +

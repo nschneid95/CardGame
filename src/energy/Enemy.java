@@ -80,7 +80,7 @@ public class Enemy {
 			Move m = list.remove(index);
 			String text = m.text();
 			text = text.substring(0, 1).toUpperCase() + text.substring(1).toLowerCase();
-			Printer.printlnLeft(Format.ANSI_CYAN + text + Format.ANSI_RESET);
+			Printer.printlnLeft(Format.obj.ANSI_CYAN() + text + Format.obj.ANSI_RESET());
 			m.execute(game);
 			return;
 		}
