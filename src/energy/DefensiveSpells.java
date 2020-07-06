@@ -1,6 +1,8 @@
 package energy;
 
 import java.util.Map;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -90,8 +92,8 @@ class DefensiveSpells {
 	private static Spell moat = new SimpleDefensive("Lava Moat", "A bubbling moat of lava. There's no bridge.", new EnergyType.Counter().addEarth(2).addFire(2), 3);
 	// Level 3
 	private static Spell fireGolems = new FireGolems();
-	private static Spell matrix = new MultiSpell("Defense Matrix", "Defense Matrix: Summon an efficient but temporary matrix to protect your base.",Matrix.all);
-	private static Spell energyShield = new MultiSpell("Energy Shield", "Energy Shield: Summon a shield protecting your energy deck from attack.", EnergyShield.all);
+	private static Spell matrix = new MultiSpell("Defense Matrix", "Defense Matrix: Summon an efficient but temporary matrix to protect your base.",Matrix::all);
+	private static Spell energyShield = new MultiSpell("Energy Shield", "Energy Shield: Summon a shield protecting your energy deck from attack.", EnergyShield::all);
 	
 	private static Map<Integer, List<Spell>> all = Map.of(
 			0, List.of(walls),
@@ -245,7 +247,9 @@ class DefensiveSpells {
 	}
 
 	private static class Matrix implements Option {
-		static List<Option> all = List.of(new Matrix(1), new Matrix(2), new Matrix(3), new Matrix(4), new Matrix(5));
+		static Stream<Option> all() {
+			return IntStream.iterate(1,  x -> x + 1).mapToObj(Matrix::new);
+		}
 		
 		Matrix(int n) {
 			this.n = n;
@@ -272,12 +276,9 @@ class DefensiveSpells {
 	}
 
 	private static class EnergyShield implements Option {
-		static List<Option> all = List.of(
-				new EnergyShield(1), new EnergyShield(2),
-				new EnergyShield(3), new EnergyShield(4),
-				new EnergyShield(5), new EnergyShield(6),
-				new EnergyShield(7), new EnergyShield(8),
-				new EnergyShield(9), new EnergyShield(10));
+		static Stream<Option> all() {
+			return IntStream.iterate(1, x -> x + 1).mapToObj(EnergyShield::new);
+		}
 		
 		EnergyShield(int n) {
 			this.n = n;

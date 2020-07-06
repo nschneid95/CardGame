@@ -1,9 +1,11 @@
 package energy;
 
-import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 class MultiOption implements Option {
-	MultiOption(String summary, List<Option> options) {
+	MultiOption(String summary, Supplier<Stream<Option>> options) {
 		this.summary = summary;
 		this.options = options;
 	}
@@ -15,27 +17,24 @@ class MultiOption implements Option {
 
 	@Override
 	public boolean isAllowed(Game game) {
-		for (Option o : options) {
-			if (o.isAllowed(game))
-				return true;
-		}
-		return false;
+		Optional<Option> first = options.get().findFirst();
+		return first.isPresent() && first.get().isAllowed(game);
 	}
 
 	@Override
 	public void execute(Game game) throws IllegalStateException {
-		Option[] filteredOptions = options.stream().filter(x -> x.isAllowed(game)).toArray(Option[]::new);
+		Option[] filteredOptions = options.get().takeWhile(x -> x.isAllowed(game)).toArray(Option[]::new);
 		int i = Selection.makeSelection(filteredOptions);
 		filteredOptions[i].execute(game);
 	}
 
 	private String summary;
-	private List<Option> options;
+	private Supplier<Stream<Option>> options;
 }
 
 
 class MultiSpell extends MultiOption implements Spell {
-	MultiSpell(String summary, String description, List<Option> options) {
+	MultiSpell(String summary, String description, Supplier<Stream<Option>> options) {
 		super(summary, options);
 		desc = description;
 	}

@@ -1,6 +1,8 @@
 package energy;
 
 import java.util.Map;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -88,11 +90,11 @@ public class OffensiveSpells {
 	// Level 2
 	private static Spell focus = new Focus();
 	private static Spell meteors = new SimpleOffensive("Meteors", "Hundreds of beachball sized flaming rocks rain down on your enemies.", new EnergyType.Counter().addFire(2).addEarth(1).addAir(1), 3);
-	private static Spell earthquake = new MultiSpell("Earthquake", "Earthquake: Shake the earth to shatter walls on both sides of the battlefield.",  Earthquake.all);
+	private static Spell earthquake = new MultiSpell("Earthquake", "Earthquake: Shake the earth to shatter walls on both sides of the battlefield.",  Earthquake::all);
 	// Level 3
-	private static Spell matrix = new MultiSpell("Attack Matrix", "Attack Matrix: A ledgendary spell whose damage is only limited by your available power.", Matrix.all);
+	private static Spell matrix = new MultiSpell("Attack Matrix", "Attack Matrix: A ledgendary spell whose damage is only limited by your available power.", Matrix::all);
 	private static Spell asteroid = new SimpleOffensive("Asteroid", "Call down an asteroid the size of a football field to crush your enemies.", new EnergyType.Counter().addFire(2).addEarth(2).addAir(1), 5);
-	private static Spell mirror = new MultiSpell("Mirror Shield", "Mirror Shield: An inpenetrable shield that reflects any damage dealt to it.", Mirror.all);
+	private static Spell mirror = new MultiSpell("Mirror Shield", "Mirror Shield: An inpenetrable shield that reflects any damage dealt to it.", Mirror::all);
 	
 	private static Map<Integer, List<Spell>> all = Map.of(
 			0, List.of(fireball),
@@ -188,12 +190,9 @@ public class OffensiveSpells {
 	}
 	
 	private static class Earthquake implements Option {
-		static List<Option> all = List.of(
-				new Earthquake(1), new Earthquake(2),
-				new Earthquake(3), new Earthquake(4),
-				new Earthquake(5), new Earthquake(6),
-				new Earthquake(7), new Earthquake(8),
-				new Earthquake(9), new Earthquake(10));
+		static Stream<Option> all() {
+			return IntStream.iterate(1, x -> x + 1).mapToObj(Earthquake::new);
+		}
 		
 		Earthquake(int n) {
 			this.n = n;
@@ -202,7 +201,7 @@ public class OffensiveSpells {
 		@Override
 		public String text() {
 			return "Earthquake: " + n + " " + EnergyType.name(EnergyType.RAW) + ", 1 "
-					+ EnergyType.name(EnergyType.EARTH) + ", " + " -> " + n + " damage to yourself and enemy";
+					+ EnergyType.name(EnergyType.EARTH) + " -> " + n + " damage to yourself and enemy";
 		}
 		
 		@Override
@@ -226,7 +225,9 @@ public class OffensiveSpells {
 	}
 	
 	private static class Matrix implements Option {
-		static List<Option> all = List.of(new Matrix(1), new Matrix(2), new Matrix(3), new Matrix(4), new Matrix(5));
+		static Stream<Option> all() {
+			return IntStream.iterate(1, x -> x + 1).mapToObj(Matrix::new);
+		}
 		
 		Matrix(int n) {
 			this.n = n;
@@ -255,12 +256,9 @@ public class OffensiveSpells {
 	}
 
 	private static class Mirror implements Option {
-		static List<Option> all = List.of(
-				new Mirror(1), new Mirror(2),
-				new Mirror(3), new Mirror(4),
-				new Mirror(5), new Mirror(6),
-				new Mirror(7), new Mirror(8),
-				new Mirror(9), new Mirror(10));
+		static Stream<Option> all() {
+			return IntStream.iterate(1, x -> x + 1).mapToObj(Mirror::new);
+		}
 		
 		Mirror(int n) {
 			this.n = n;
