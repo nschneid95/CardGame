@@ -12,12 +12,12 @@ public class Selection {
 	static int makeSelection(Choice[] choices) {
 		Printer.printlnLeft("Please choose from the following");
 		for (int i = 0; i < choices.length; i++) {
-			if (i == 0)
-				Printer.printLeft(Format.ANSI_BOLD);
+//			if (i == 0)
+//				Printer.printLeft(Format.ANSI_BOLD);
 			Printer.printLeft((i + 1) + ": ");
 			Printer.printLeft(choices[i].text());
-			if (i == 0)
-				Printer.printLeft(Format.ANSI_RESET);
+//			if (i == 0)
+//				Printer.printLeft(Format.ANSI_RESET);
 			Printer.printlnLeft("");
 		}
 		Printer.flush();
@@ -25,12 +25,13 @@ public class Selection {
 		boolean first = true;
 		while (index < 0 || index >= choices.length) {
 			if (!first)
-				System.out.println("Invalid option number.");
+				System.out.println("Invalid option number, plese enter a valid option.");
+			first = false;
 			String line = scan.nextLine();
-			if (line.equals("")) {
-				index = 0;
-				break;
-			}
+//			if (line.equals("")) {
+//				index = 0;
+//				break;
+//			}
 			try {
 				index = Integer.parseInt(line) - 1;
 			} catch (NumberFormatException e) {

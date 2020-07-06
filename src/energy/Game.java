@@ -60,7 +60,7 @@ public class Game {
 	
 	void win() {
 		Printer.flush();
-		System.out.println("Congratulations you won!! Press any key to exit");
+		System.out.println("Congratulations you won!! Press return to exit");
 		try { System.in.read(); } catch (IOException e) { }
 		System.exit(0);
 	}
@@ -68,7 +68,7 @@ public class Game {
 	void lose() {
 		Printer.flush();
 		System.out.println("Your base has been overriden and the capitalistic pigs have taken the Energy Spring for themselves.");
-		System.out.println("Better luck next time! Press any key to exit");
+		System.out.println("Better luck next time! Press return to exit");
 		try { System.in.read(); } catch (IOException e) { }
 		System.exit(0);
 	}
@@ -96,11 +96,11 @@ public class Game {
 			Printer.printlnRight("FireGolems: " + numFireGolems);
 		int lvl = OffensiveSpells.maxLevel;
 		Printer.printlnRight("Spell cost (" + EnergyType.name(EnergyType.WATER) + "): "
-			+ getValByLevel(researchCosts::SpellCost, lvl));
-		Printer.printlnRight("Remaning offensive spells: " + getValByLevel(OffensiveSpells::numUnknown, lvl));
+			+ getValByLevel(researchCosts::spellCost, lvl));
 		Printer.printlnRight("Remaining defensive spells: " + getValByLevel(DefensiveSpells::numUnknown, lvl));
+		Printer.printlnRight("Remaning offensive spells: " + getValByLevel(OffensiveSpells::numUnknown, lvl));
 		Printer.printlnRight("Prayer cost(" + EnergyType.name(EnergyType.AIR) + "): "
-			+ getValByLevel(researchCosts::PrayerCost, lvl));
+			+ getValByLevel(researchCosts::prayerCost, lvl));
 		Printer.printlnRight("Remaining prayers: " + getValByLevel(Prayers::numPrayers, lvl));
 	}
 	
@@ -142,7 +142,7 @@ public class Game {
 			
 			// Present to the user and make a choice
 			if (filteredOptions.length == 1) {
-				Printer.printlnLeft("Press any key to discard your remaining cards");
+				Printer.printlnLeft("Press return to discard your remaining cards");
 				Printer.flush();
 				try {
 					System.in.read();

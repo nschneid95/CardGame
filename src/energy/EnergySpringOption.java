@@ -32,13 +32,13 @@ public class EnergySpringOption implements Option {
 
 	@Override
 	public String text() {
-		return "Upgrade " + Format.rainbow("energy spring") + ". Costs one each of " +
-				EnergyType.name(EnergyType.EARTH) + ", " + 
-				EnergyType.name(EnergyType.AIR) + ", " +
-				EnergyType.name(EnergyType.FIRE) + ", " +
-				EnergyType.name(EnergyType.WATER) + " and " +
+		return "Fortify the " + Format.rainbow("energy spring") + ". 1 " +
+				EnergyType.name(EnergyType.EARTH) + ", 1 " + 
+				EnergyType.name(EnergyType.AIR) + ", 1 " +
+				EnergyType.name(EnergyType.FIRE) + ", 1 " +
+				EnergyType.name(EnergyType.WATER) + ", " +
 				num + " " + EnergyType.name(EnergyType.RAW) +
-				" Energy. Provides +" + num + " " + EnergyType.name(EnergyType.RAW) + " energy per day.";
+				" -> +" + num + " " + EnergyType.name(EnergyType.RAW) + " per day";
 	}
 
 	@Override

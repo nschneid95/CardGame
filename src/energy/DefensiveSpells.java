@@ -21,7 +21,7 @@ class DefensiveSpells {
 		default:
 			throw new IllegalStateException("Unexpected defensive maxLevel: " + maxLevel);
 		}
-		for (Map.Entry<Integer, List<Option>> entry : all.entrySet()) {
+		for (Map.Entry<Integer, List<Spell>> entry : all.entrySet()) {
 			int level = entry.getKey();
 			if (level > maxLevel)
 				continue;
@@ -49,72 +49,65 @@ class DefensiveSpells {
 		
 		@Override
 		public String text() {
-			return "Research a new level " + level + " defensive spell";
+			String adj = "";
+			switch (level) {
+			case 2:
+				adj = "powerful ";
+				break;
+			case 3:
+				adj = "legendary ";
+				break;
+			}
+			return "Research a new " + adj + "defensive spell";
 		}
 		
 		@Override
 		public boolean isAllowed(Game game) {
-			return game.hasWater(game.researchCosts.SpellCost(level)) && unknown.get(level).size() > 0;
+			return game.hasWater(game.researchCosts.spellCost(level)) && unknown.get(level).size() > 0;
 		}
 		
 		@Override
 		public void execute(Game game) throws IllegalStateException {
-			game.spend(EnergyType.WATER, game.researchCosts.SpellCost(level));
-			Printer.printlnLeft(Format.ANSI_CYAN + "You learned: " + 
-					unknown.get(level).remove((int)(Math.random() * unknown.get(level).size())).text() + Format.ANSI_RESET);
+			game.spend(EnergyType.WATER, game.researchCosts.spellCost(level));
+			Printer.printlnLeft(Format.ANSI_CYAN + "You learned: " + Format.ANSI_RESET
+					+ unknown.get(level).remove((int)(Math.random() * unknown.get(level).size())).description()
+					+ Format.ANSI_RESET);
 			
 		}
 		
 		private int level;
 	}
 	
-	
 	// Level 0
-	private static Option walls = new SimpleDefensive("Walls", new EnergyType.Counter().addEarth(2), 1);
+	private static Spell walls = new SimpleDefensive("Walls", "", new EnergyType.Counter().addEarth(2), 1);
 	// Level 1
-	private static Option dust = new SimpleDefensive("Dust Cloud", new EnergyType.Counter().addEarth(1).addAir(1), 1);
-	private static Option strongWalls = new SimpleDefensive("Strong Walls", new EnergyType.Counter().addEarth(3), 2);
-	private static Option mud = new SimpleDefensive("Mud Trap", new EnergyType.Counter().addEarth(2).addWater(1), 2);
+	private static Spell sandStorm = new SimpleDefensive("Sandstorm", "A sandstorm capable of grinding entire creatures to nothing but dust.", new EnergyType.Counter().addEarth(1).addAir(1), 1);
+	private static Spell strongWalls = new SimpleDefensive("Strong Walls", "A more powerful wall with iron reinforcments.", new EnergyType.Counter().addEarth(3), 2);
+	private static Spell quickSand = new SimpleDefensive("Quicksand", "An invisible pool that drowns creatures in minutes.", new EnergyType.Counter().addEarth(2).addWater(1), 2);
 	// Level 2
-	private static Option golems = new Golems();
-	private static Option shield = new Shield();
-	private static Option moat = new SimpleDefensive("Lava Moat", new EnergyType.Counter().addEarth(2).addFire(2), 3);
+	private static Spell golems = new Golems();
+	private static Spell shield = new Shield();
+	private static Spell moat = new SimpleDefensive("Lava Moat", "A bubbling moat of lava. There's no bridge.", new EnergyType.Counter().addEarth(2).addFire(2), 3);
 	// Level 3
-	private static Option fireGolems = new FireGolems();
-	private static Option matrix = new MultiOption("Summon a defensive matrix", Matrix.all);
-	private static Option energyShield = new MultiOption("Summon an energy shield to protect your energy deck", EnergyShield.all);
-
-	private static Map<Integer, List<Option>> initList(boolean includeZero) {
-		Map<Integer, List<Option>> ret = new HashMap<Integer, List<Option>>();
-		List<Option> zero = new ArrayList<Option>();
-		zero.add(walls);
-		List<Option> one = new ArrayList<Option>();
-		one.add(dust);
-		one.add(strongWalls);
-		one.add(mud);
-		List<Option> two = new ArrayList<Option>();
-		two.add(golems);
-		two.add(shield);
-		two.add(moat);
-		List<Option> three = new ArrayList<Option>();
-		three.add(fireGolems);
-		three.add(matrix);
-		three.add(energyShield);
-		if (includeZero)
-			ret.put(0, zero);
-		ret.put(1, one);
-		ret.put(2, two);
-		ret.put(3, three);
-		return ret;
-	}
+	private static Spell fireGolems = new FireGolems();
+	private static Spell matrix = new MultiSpell("Defense Matrix", "Defense Matrix: Summon an efficient but temporary matrix to protect your base.",Matrix.all);
+	private static Spell energyShield = new MultiSpell("Energy Shield", "Energy Shield: Summon a shield protecting your energy deck from attack.", EnergyShield.all);
 	
-	private static Map<Integer, List<Option>> unknown = initList(false);
-	private static Map<Integer, List<Option>> all = initList(true);
+	private static Map<Integer, List<Spell>> all = Map.of(
+			0, List.of(walls),
+			1, List.of(sandStorm, strongWalls, quickSand),
+			2, List.of(golems, shield, moat),
+			3, List.of(fireGolems, matrix, energyShield));
+	private static Map<Integer, List<Spell>> unknown = new HashMap<Integer, List<Spell>>(Map.of(
+			1, new ArrayList<Spell>(List.of(sandStorm, strongWalls, quickSand)),
+			2, new ArrayList<Spell>(List.of(golems, shield, moat)),
+			3, new ArrayList<Spell>(List.of(fireGolems, matrix, energyShield))));
 	static int maxLevel = 1;
 	
-	private static class SimpleDefensive implements Option {
-		SimpleDefensive(String name, EnergyType.Counter cost, int def) {
+	private static class SimpleDefensive implements Spell {
+		SimpleDefensive(String name, String desc, EnergyType.Counter cost, int def) {
 			this.name = name;
+			this.desc = desc;
 			this.cost = cost.getMap();
 			this.def = def;
 		}
@@ -124,20 +117,20 @@ class DefensiveSpells {
 			StringBuilder str = new StringBuilder();
 			str.append(name);
 			str.append(": ");
-			boolean first = true;
-			for (Map.Entry<EnergyType, Integer> entry : cost.entrySet()) {
-				if (!first) {
-					str.append(", ");
-				}
-				str.append(entry.getValue());
-				str.append(" ");
-				str.append(EnergyType.name(entry.getKey()));
-				first = false;
-			}
+			str.append(String.join(", ",
+					cost.entrySet().stream()
+					.sorted((x, y) -> x.getKey().compareTo(y.getKey()))
+					.map(x -> x.getValue() + " " + EnergyType.name(x.getKey()))
+					.toArray(String[]::new)));
 			str.append(" -> ");
 			str.append(def);
 			str.append(" walls");
 			return str.toString();
+		}
+		
+		@Override
+		public String description() {
+			return name + ": " + desc;
 		}
 		
 		@Override
@@ -161,17 +154,23 @@ class DefensiveSpells {
 			}
 		}
 		
-		private String name;
+		private String name, desc;
 		private Map<EnergyType, Integer> cost;
 		private int def;
 	}
 
-	private static class Golems implements Option {
+	private static class Golems implements Spell {
 		Golems() {}
 		
 		@Override
 		public String text() {
-			return "Spend one each of Earth, Water, and Raw energy to sculpt two golems that attack for you and protect you.";
+			return "Golems: 1 " + EnergyType.name(EnergyType.RAW) + ", 1 " + EnergyType.name(EnergyType.WATER)
+					+ ", 1 " + EnergyType.name(EnergyType.EARTH) + " -> 2 golems";
+		}
+		
+		@Override
+		public String description() {
+			return "Golems: Humanoids sculpted out of mud that protect your base and still deal 1 damage per turn.";
 		}
 		
 		@Override
@@ -188,12 +187,18 @@ class DefensiveSpells {
 		}
 	}
 
-	private static class Shield implements Option {
+	private static class Shield implements Spell {
 		Shield() {}
 		
 		@Override
 		public String text() {
-			return "Craft an impenetrable obsidian shield that lasts until the end of the day";
+			return "Carbon shield: 2 " + EnergyType.name(EnergyType.RAW) + ", 2 "
+					+ EnergyType.name(EnergyType.EARTH) + " -> No damage is taken today";
+		}
+		
+		@Override
+		public String description() {
+			return "Carbon shield: A powerful shield that guards against all damage for one day.";
 		}
 		
 		@Override
@@ -209,12 +214,19 @@ class DefensiveSpells {
 		}
 	}
 	
-	private static class FireGolems implements Option {
+	private static class FireGolems implements Spell {
 		FireGolems() {}
 		
 		@Override
 		public String text() {
-			return "Spend two Raw energy and one each of Earth, Water, and Fire energy to sculpt three fire golems that attack for you and protect you.";
+			return "Fire Golems: 2 " + EnergyType.name(EnergyType.RAW) + ", 1 " + EnergyType.name(EnergyType.WATER)
+					+ ", 1 " + EnergyType.name(EnergyType.EARTH) + ", 1 " + EnergyType.name(EnergyType.FIRE)
+					+ " -> 3 fire golems";
+		}
+		
+		@Override
+		public String description() {
+			return "Fire Golems: Powerful golems that protect your base and still deal 2 damage per turn.";
 		}
 		
 		@Override
@@ -241,7 +253,8 @@ class DefensiveSpells {
 		
 		@Override
 		public String text() {
-			return "Spend " + 2 * n + " Raw energy to summon a defensive matrix that absorbs up to " + n + " damage today only.";
+			return "Defense Matrix: " + (2 * n) + " " + EnergyType.name(EnergyType.RAW)
+					+ " -> Absorb up to " + n + " damage taken today";
 		}
 		
 		@Override
@@ -272,8 +285,10 @@ class DefensiveSpells {
 		
 		@Override
 		public String text() {
-			return "Spend " + n + " Raw energy and one each of Earth, Water, Air, and Fire energy to summon an energy " +
-					"shield that protects your energy deck from attack for " + n + " days.";
+			return "Energy Shield: " + n + " " + EnergyType.name(EnergyType.RAW) + ", 1 "
+					+ EnergyType.name(EnergyType.WATER) + ", 1 " + EnergyType.name(EnergyType.EARTH)
+					+ ", 1 " + EnergyType.name(EnergyType.AIR) + ", 1 " + EnergyType.name(EnergyType.FIRE)
+					+ " -> your energy deck is protected for " + n + " days";
 		}
 		
 		@Override

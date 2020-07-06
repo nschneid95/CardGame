@@ -6,10 +6,10 @@ import java.util.HashMap;
 
 public enum EnergyType {
 	RAW,
-	EARTH,
 	WATER,
-	AIR,
-	FIRE;
+	EARTH,
+	FIRE,
+	AIR;
 	
 	public static String name(EnergyType type) {
 		switch (type) {

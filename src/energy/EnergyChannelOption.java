@@ -21,7 +21,7 @@ public class EnergyChannelOption implements Option {
 	
 	@Override
 	public String text() {
-		return "Channel 3 " + EnergyType.name(EnergyType.RAW) + " energy into 2 " + EnergyType.name(type) + " energy";
+		return EnergyType.name(type) + " Channel: 3 " + EnergyType.name(EnergyType.RAW) + " -> 2 " + EnergyType.name(type);
 	}
 	
 	@Override

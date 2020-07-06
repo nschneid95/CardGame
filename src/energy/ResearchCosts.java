@@ -1,12 +1,13 @@
 package energy;
 
 public abstract class ResearchCosts {
-	abstract int PrayerCost(int level) throws IllegalArgumentException;
-	abstract int SpellCost(int level) throws IllegalArgumentException;
+	abstract int prayerCost(int level) throws IllegalArgumentException;
+	abstract int spellCost(int level) throws IllegalArgumentException;
 	
 	public static ResearchCosts BaseCosts() {
 		return Zero.obj;
 	}
+	
 	public static ResearchCosts AddResearchPoint(ResearchCosts currCosts) throws IllegalArgumentException {
 		if (currCosts == Zero.obj) {
 			return One.obj;
@@ -22,7 +23,9 @@ public abstract class ResearchCosts {
 	private static class Zero extends ResearchCosts {
 		private Zero() {}
 		static Zero obj = new Zero();
-		public int PrayerCost(int level) throws IllegalArgumentException {
+		
+		@Override
+		public int prayerCost(int level) throws IllegalArgumentException {
 			switch (level) {
 			case 1:
 				return 3;
@@ -34,7 +37,9 @@ public abstract class ResearchCosts {
 				throw new IllegalArgumentException("Invalid prayer level: " + level);
 			}
 		}
-		public int SpellCost(int level) throws IllegalArgumentException {
+		
+		@Override
+		public int spellCost(int level) throws IllegalArgumentException {
 			switch (level) {
 			case 1:
 				return 2;
@@ -51,7 +56,9 @@ public abstract class ResearchCosts {
 	private static class One extends ResearchCosts {
 		private One() {}
 		static One obj = new One();
-		public int PrayerCost(int level) throws IllegalArgumentException {
+		
+		@Override
+		public int prayerCost(int level) throws IllegalArgumentException {
 			switch (level) {
 			case 1:
 				return 2;
@@ -63,7 +70,9 @@ public abstract class ResearchCosts {
 				throw new IllegalArgumentException("Invalid prayer level: " + level);
 			}
 		}
-		public int SpellCost(int level) throws IllegalArgumentException {
+		
+		@Override
+		public int spellCost(int level) throws IllegalArgumentException {
 			switch (level) {
 			case 1:
 				return 2;
@@ -80,7 +89,9 @@ public abstract class ResearchCosts {
 	private static class Two extends ResearchCosts {
 		private Two() {}
 		static Two obj = new Two();
-		public int PrayerCost(int level) throws IllegalArgumentException {
+		
+		@Override
+		public int prayerCost(int level) throws IllegalArgumentException {
 			switch (level) {
 			case 1:
 				return 1;
@@ -92,7 +103,9 @@ public abstract class ResearchCosts {
 				throw new IllegalArgumentException("Invalid prayer level: " + level);
 			}
 		}
-		public int SpellCost(int level) throws IllegalArgumentException {
+		
+		@Override
+		public int spellCost(int level) throws IllegalArgumentException {
 			switch (level) {
 			case 1:
 				return 1;
@@ -109,7 +122,9 @@ public abstract class ResearchCosts {
 	private static class Three extends ResearchCosts {
 		private Three() {}
 		static Three obj = new Three();
-		public int PrayerCost(int level) throws IllegalArgumentException {
+		
+		@Override
+		public int prayerCost(int level) throws IllegalArgumentException {
 			switch (level) {
 			case 1:
 				return 1;
@@ -121,7 +136,9 @@ public abstract class ResearchCosts {
 				throw new IllegalArgumentException("Invalid prayer level: " + level);
 			}
 		}
-		public int SpellCost(int level) throws IllegalArgumentException {
+		
+		@Override
+		public int spellCost(int level) throws IllegalArgumentException {
 			switch (level) {
 			case 1:
 				return 1;

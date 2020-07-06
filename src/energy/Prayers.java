@@ -42,17 +42,26 @@ public class Prayers {
 		
 		@Override
 		public String text() {
-			return "Request a new level " + level + " prayer";
+			String adj = "";
+			switch (level) {
+			case 2:
+				adj = "powerful ";
+				break;
+			case 3:
+				adj = "legendary ";
+				break;
+			}
+			return "Request a new " + adj + "prayer";
 		}
 		
 		@Override
 		public boolean isAllowed(Game game) {
-			return game.hasAir(game.researchCosts.PrayerCost(level)) && remaining.get(level).size() > 0;
+			return game.hasAir(game.researchCosts.prayerCost(level)) && remaining.get(level).size() > 0;
 		}
 		
 		@Override
 		public void execute(Game game) throws IllegalStateException {
-			game.spend(EnergyType.AIR, game.researchCosts.PrayerCost(level));
+			game.spend(EnergyType.AIR, game.researchCosts.prayerCost(level));
 			Prayer p = remaining.get(level).remove((int)(Math.random() * remaining.get(level).size()));
 			Printer.printlnLeft(Format.ANSI_CYAN + p.text() + Format.ANSI_RESET);
 			p.execute(game);
@@ -65,7 +74,6 @@ public class Prayers {
 			1, new ArrayList<Prayer>(List.of(new NextLevel(), new ResearchPoint(), new Channel(EnergyType.AIR))),
 			2, new ArrayList<Prayer>(List.of(new Channel(EnergyType.WATER), new ResearchPoint(), new NextLevel())),
 			3, new ArrayList<Prayer>(List.of(new Channel(EnergyType.EARTH), new Channel(EnergyType.FIRE), new ResearchPoint()))));
-	//TODO Add energy storage
 	
 	private interface Prayer {
 		void execute(Game game);
@@ -84,22 +92,37 @@ public class Prayers {
 		
 		@Override
 		public String text() {
-			return "New spell and prayer level unlocked!";
+			if (maxLevel == 1) {
+				return "Your body morphs and changes to something barely recognizable as you gain the ability to cast very powerful spells.";
+			} else {
+				return "Your body flows like pudding and hardens into a solid crystal that can channel immense amounts of energy and cast unthinkable spells.";
+			}
 		}
 	}
 	
 	private static class ResearchPoint implements Prayer {
-		ResearchPoint() {}
+		ResearchPoint() { }
 		
 		@Override
 		public void execute(Game game) {
 			game.researchCosts = ResearchCosts.AddResearchPoint(game.researchCosts);
+			numPoints++;
 		}
 		
 		@Override
 		public String text() {
-			return "Research Point gained!";
+			switch (numPoints) {
+			case 0:
+				return "You gain a lifetime worth of spell theory in a single moment. You can research spells quicker.";
+			case 1:
+				return "Your mind struggles to keep up as you gain a deeper understanding of the world than every other creature combined. Researching new seplls is easy.";
+			case 2:
+				return "Your personality dissolves as the knowledge of a god overwhelms your mind. Researching complex new spells is as easy as addition.";
+			}
+			throw new RuntimeException("Unexpected number of research points: " + numPoints);
 		}
+		
+		static int numPoints = 0;
 	}
 	
 	private static class Channel implements Prayer {
@@ -114,7 +137,9 @@ public class Prayers {
 		
 		@Override
 		public String text() {
-			return EnergyType.name(type) + Format.ANSI_CYAN + " Channel aquired!";
+			return "The mythical " + EnergyType.name(type) + Format.ANSI_CYAN + " Channel appears in your hands! "
+					+ EnergyType.name(EnergyType.RAW) + Format.ANSI_CYAN + " can now be converted to "
+					+ EnergyType.name(type) + Format.ANSI_CYAN + " more efficiently!";
 		}
 		
 		private final EnergyType type;

@@ -2,8 +2,8 @@ package energy;
 
 import java.util.List;
 
-public class MultiOption implements Option {
-	public MultiOption(String summary, List<Option> options) {
+class MultiOption implements Option {
+	MultiOption(String summary, List<Option> options) {
 		this.summary = summary;
 		this.options = options;
 	}
@@ -31,4 +31,19 @@ public class MultiOption implements Option {
 
 	private String summary;
 	private List<Option> options;
+}
+
+
+class MultiSpell extends MultiOption implements Spell {
+	MultiSpell(String summary, String description, List<Option> options) {
+		super(summary, options);
+		desc = description;
+	}
+	
+	@Override
+	public String description() {
+		return desc;
+	}
+	
+	private String desc;
 }
