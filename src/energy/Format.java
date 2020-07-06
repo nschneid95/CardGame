@@ -13,6 +13,14 @@ abstract class Format {
 	abstract String ANSI_PURPLE();
 	abstract String ANSI_CYAN();
 	abstract String ANSI_WHITE();
+	abstract String ANSI_BRIGHT_BLACK();
+	abstract String ANSI_BRIGHT_RED();
+	abstract String ANSI_BRIGHT_GREEN();
+	abstract String ANSI_BRIGHT_YELLOW();
+	abstract String ANSI_BRIGHT_BLUE();
+	abstract String ANSI_BRIGHT_PURPLE();
+	abstract String ANSI_BRIGHT_CYAN();
+	abstract String ANSI_BRIGHT_WHITE();
 	abstract String ANSI_BOLD();
 	
 	public static void enableColors() {
@@ -55,6 +63,14 @@ final class Colors extends Format {
 	public String ANSI_PURPLE() { return "\u001B[35m"; }
 	public String ANSI_CYAN() { return "\u001B[36m"; }
 	public String ANSI_WHITE() { return "\u001B[37m"; }
+	public String ANSI_BRIGHT_BLACK() { return "\u001B[30;1m"; }
+	public String ANSI_BRIGHT_RED() { return "\u001B[31;1m"; }
+	public String ANSI_BRIGHT_GREEN() { return "\u001B[32;1m"; }
+	public String ANSI_BRIGHT_YELLOW() { return "\u001B[33;1m"; }
+	public String ANSI_BRIGHT_BLUE() { return "\u001B[34;1m"; }
+	public String ANSI_BRIGHT_PURPLE() { return "\u001B[35;1m"; }
+	public String ANSI_BRIGHT_CYAN() { return "\u001B[36;1m"; }
+	public String ANSI_BRIGHT_WHITE() { return "\u001B[37;1m"; }
 	public String ANSI_BOLD() { return "\u001B[1m"; }
 }
 
@@ -68,5 +84,13 @@ final class NoColors extends Format {
 	public String ANSI_PURPLE() { return ""; }
 	public String ANSI_CYAN() { return ""; }
 	public String ANSI_WHITE() { return ""; }
+	public String ANSI_BRIGHT_BLACK() { return ""; }
+	public String ANSI_BRIGHT_RED() { return ""; }
+	public String ANSI_BRIGHT_GREEN() { return ""; }
+	public String ANSI_BRIGHT_YELLOW() { return ""; }
+	public String ANSI_BRIGHT_BLUE() { return ""; }
+	public String ANSI_BRIGHT_PURPLE() { return ""; }
+	public String ANSI_BRIGHT_CYAN() { return ""; }
+	public String ANSI_BRIGHT_WHITE() { return ""; }
 	public String ANSI_BOLD() { return ""; }
 }

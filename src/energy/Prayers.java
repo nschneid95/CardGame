@@ -5,8 +5,10 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public class Prayers {
+	static Supplier<String> color = Format.obj::ANSI_BRIGHT_PURPLE;
 	
 	public static List<Option> getOptions() {
 		List<Option> ret = new LinkedList<Option>();
@@ -51,7 +53,7 @@ public class Prayers {
 				adj = "legendary ";
 				break;
 			}
-			return "Request a new " + adj + "prayer";
+			return color.get() + "Request a new " + adj + "prayer" + Format.obj.ANSI_RESET();
 		}
 		
 		@Override
@@ -63,7 +65,7 @@ public class Prayers {
 		public void execute(Game game) throws IllegalStateException {
 			game.spend(EnergyType.AIR, game.researchCosts.prayerCost(level));
 			Prayer p = remaining.get(level).remove((int)(Math.random() * remaining.get(level).size()));
-			Printer.printlnLeft(Format.obj.ANSI_CYAN() + p.text() + Format.obj.ANSI_RESET());
+			Printer.printlnLeft(color.get() + p.text() + Format.obj.ANSI_RESET());
 			p.execute(game);
 		}
 		
@@ -95,7 +97,8 @@ public class Prayers {
 			if (maxLevel == 1) {
 				return "Your body morphs and changes to something barely recognizable as you gain the ability to cast very powerful spells.";
 			} else {
-				return "Your body flows like pudding and hardens into a solid crystal that can channel immense amounts of energy and cast unthinkable spells.";
+				return "Your body flows like pudding and hardens into a solid crystal that can channel immense amounts of energy and"
+						+ Format.obj.ANSI_RESET() + "\n" + color.get() + "cast unthinkable spells.";
 			}
 		}
 	}
@@ -115,7 +118,8 @@ public class Prayers {
 			case 0:
 				return "You gain a lifetime worth of spell theory in a single moment. You can research spells quicker.";
 			case 1:
-				return "Your mind struggles to keep up as you gain a deeper understanding of the world than every other creature combined. Researching new seplls is easy.";
+				return "Your mind struggles to keep up as you gain a deeper understanding of the world than every other creature combined."
+						+ Format.obj.ANSI_RESET() + "\n" + color.get() + "Researching new seplls is easy.";
 			case 2:
 				return "Your personality dissolves as the knowledge of a god overwhelms your mind. Researching complex new spells is as easy as addition.";
 			}
@@ -137,9 +141,9 @@ public class Prayers {
 		
 		@Override
 		public String text() {
-			return "The mythical " + EnergyType.name(type) + Format.obj.ANSI_CYAN() + " Channel appears in your hands! "
-					+ EnergyType.name(EnergyType.RAW) + Format.obj.ANSI_CYAN() + " can now be converted to "
-					+ EnergyType.name(type) + Format.obj.ANSI_CYAN() + " more efficiently!";
+			return "The mythical " + EnergyType.name(type) + color.get() + " Channel appears in your hands! "
+					+ EnergyType.name(EnergyType.RAW) + color.get() + " can now be converted to "
+					+ EnergyType.name(type) + color.get() + " more efficiently!";
 		}
 		
 		private final EnergyType type;

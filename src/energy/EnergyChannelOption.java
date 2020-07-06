@@ -26,7 +26,7 @@ public class EnergyChannelOption implements Option {
 	
 	@Override
 	public boolean isAllowed(Game game) {
-		return learned && game.deck.getOrDefault(EnergyType.RAW, 0) >= 3;
+		return learned && game.hasRaw(3);
 	}
 	
 	@Override

@@ -123,9 +123,7 @@ public class Enemy {
 			
 		@Override
 		public void execute(Game game) {
-			game.playerWalls -= dmg;
-			if (game.playerWalls <= 0)
-				game.lose();
+			game.takeDamage(dmg);
 		}
 		
 		@Override
@@ -144,9 +142,7 @@ public class Enemy {
 		
 		@Override
 		public void execute(Game game) {
-			int curr = game.deck.getOrDefault(type, 0);
-			int newVal = curr > amt ? curr - amt : 0;
-			game.deck.put(type, newVal);
+			game.steal(type, amt);
 		}
 		
 		@Override
@@ -165,7 +161,7 @@ public class Enemy {
 		
 		@Override
 		public void execute(Game game) {
-			game.deck.put(type, 0);
+			game.stealAll(type);
 		}
 		
 		@Override
@@ -183,7 +179,7 @@ public class Enemy {
 		
 		@Override
 		public void execute(Game game) {
-			game.enemyWalls += amt;
+			game.buildEnemyWalls(amt);
 		}
 		
 		@Override

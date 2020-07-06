@@ -4,15 +4,21 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-class MultiOption implements Option {
-	MultiOption(String summary, Supplier<Stream<Option>> options) {
-		this.summary = summary;
+class MultiSpell implements Spell {
+	MultiSpell(Supplier<String> color, String name, String desc, Supplier<Stream<Option>> options) {
+		this.name = color.get() + name + Format.obj.ANSI_RESET();
+		this.desc = desc;
 		this.options = options;
 	}
 
 	@Override
 	public String text() {
-		return summary;
+		return name;
+	}
+	
+	@Override
+	public String description() {
+		return name + ": " + desc;
 	}
 
 	@Override
@@ -28,21 +34,6 @@ class MultiOption implements Option {
 		filteredOptions[i].execute(game);
 	}
 
-	private String summary;
+	private String name, desc;
 	private Supplier<Stream<Option>> options;
-}
-
-
-class MultiSpell extends MultiOption implements Spell {
-	MultiSpell(String summary, String description, Supplier<Stream<Option>> options) {
-		super(summary, options);
-		desc = description;
-	}
-	
-	@Override
-	public String description() {
-		return desc;
-	}
-	
-	private String desc;
 }

@@ -1,6 +1,7 @@
 package energy;
 
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.ArrayList;
@@ -9,6 +10,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 class DefensiveSpells {
+	
+	static Supplier<String> color = Format.obj::ANSI_BRIGHT_GREEN;
 	
 	public static List<Option> getOptions() {
 		List<Option> ret = new LinkedList<Option>();
@@ -60,7 +63,7 @@ class DefensiveSpells {
 				adj = "legendary ";
 				break;
 			}
-			return "Research a new " + adj + "defensive spell";
+			return color.get() + "Research a new " + adj + "defensive spell" + Format.obj.ANSI_RESET();
 		}
 		
 		@Override
@@ -71,9 +74,8 @@ class DefensiveSpells {
 		@Override
 		public void execute(Game game) throws IllegalStateException {
 			game.spend(EnergyType.WATER, game.researchCosts.spellCost(level));
-			Printer.printlnLeft(Format.obj.ANSI_CYAN() + "You learned: " + Format.obj.ANSI_RESET()
-					+ unknown.get(level).remove((int)(Math.random() * unknown.get(level).size())).description()
-					+ Format.obj.ANSI_RESET());
+			Printer.printlnLeft(Format.obj.ANSI_CYAN() + "You learned: "
+					+ unknown.get(level).remove((int)(Math.random() * unknown.get(level).size())).description());
 			
 		}
 		
@@ -92,8 +94,8 @@ class DefensiveSpells {
 	private static Spell moat = new SimpleDefensive("Lava Moat", "A bubbling moat of lava. There's no bridge.", new EnergyType.Counter().addEarth(2).addFire(2), 3);
 	// Level 3
 	private static Spell fireGolems = new FireGolems();
-	private static Spell matrix = new MultiSpell("Defense Matrix", "Defense Matrix: Summon an efficient but temporary matrix to protect your base.",Matrix::all);
-	private static Spell energyShield = new MultiSpell("Energy Shield", "Energy Shield: Summon a shield protecting your energy deck from attack.", EnergyShield::all);
+	private static Spell matrix = new MultiSpell(color, "Defense Matrix", "Summon an efficient but temporary matrix to protect your base.",Matrix::all);
+	private static Spell energyShield = new MultiSpell(color, "Energy Shield", "Summon a shield protecting your energy deck from attack.", EnergyShield::all);
 	
 	private static Map<Integer, List<Spell>> all = Map.of(
 			0, List.of(walls),
@@ -108,7 +110,7 @@ class DefensiveSpells {
 	
 	private static class SimpleDefensive implements Spell {
 		SimpleDefensive(String name, String desc, EnergyType.Counter cost, int def) {
-			this.name = name;
+			this.name = color.get() + name + Format.obj.ANSI_RESET();
 			this.desc = desc;
 			this.cost = cost.getMap();
 			this.def = def;
@@ -138,9 +140,8 @@ class DefensiveSpells {
 		@Override
 		public boolean isAllowed(Game game) {
 			for (Map.Entry<EnergyType, Integer> entry : cost.entrySet()) {
-				if (game.deck.getOrDefault(entry.getKey(), 0) < entry.getValue()) {
+				if (!game.has(entry.getKey(), entry.getValue()))
 					return false;
-				}
 			}
 			return true;
 		}
@@ -150,10 +151,7 @@ class DefensiveSpells {
 			for (Map.Entry<EnergyType, Integer> entry : cost.entrySet()) {
 				game.spend(entry.getKey(), entry.getValue());
 			}
-			game.playerWalls += def;
-			if (game.enemyWalls <= 0) {
-				game.win();
-			}
+			game.buildWalls(def);
 		}
 		
 		private String name, desc;
@@ -166,13 +164,15 @@ class DefensiveSpells {
 		
 		@Override
 		public String text() {
-			return "Golems: 1 " + EnergyType.name(EnergyType.RAW) + ", 1 " + EnergyType.name(EnergyType.WATER)
+			return color.get() + "Golems" + Format.obj.ANSI_RESET() + ": 1 "
+					+ EnergyType.name(EnergyType.RAW) + ", 1 " + EnergyType.name(EnergyType.WATER)
 					+ ", 1 " + EnergyType.name(EnergyType.EARTH) + " -> 2 golems";
 		}
 		
 		@Override
 		public String description() {
-			return "Golems: Humanoids sculpted out of mud that protect your base and still deal 1 damage per turn.";
+			return color.get() + "Golems" + Format.obj.ANSI_RESET()
+					+ ": Humanoids sculpted out of mud that protect your base and still deal 1 damage per turn.";
 		}
 		
 		@Override
@@ -185,7 +185,7 @@ class DefensiveSpells {
 			game.spend(EnergyType.EARTH, 1);
 			game.spend(EnergyType.WATER, 1);
 			game.spend(EnergyType.RAW, 1);
-			game.numGolems += 2;
+			game.summonGolems(2);
 		}
 	}
 
@@ -194,25 +194,27 @@ class DefensiveSpells {
 		
 		@Override
 		public String text() {
-			return "Carbon shield: 2 " + EnergyType.name(EnergyType.RAW) + ", 2 "
+			return color.get() + "Carbon shield" + Format.obj.ANSI_RESET() + ": 2 "
+					+ EnergyType.name(EnergyType.RAW) + ", 2 "
 					+ EnergyType.name(EnergyType.EARTH) + " -> No damage is taken today";
 		}
 		
 		@Override
 		public String description() {
-			return "Carbon shield: A powerful shield that guards against all damage for one day.";
+			return color.get() + "Carbon shield" + Format.obj.ANSI_RESET()
+					+ ": A powerful shield that guards against all damage for one day.";
 		}
 		
 		@Override
 		public boolean isAllowed(Game game) {
-			return !game.hasShield && game.hasEarth(2) && game.hasRaw(2);
+			return !game.hasShield() && game.hasEarth(2) && game.hasRaw(2);
 		}
 		
 		@Override
 		public void execute(Game game) {
 			game.spend(EnergyType.EARTH, 2);
 			game.spend(EnergyType.RAW, 2);
-			game.hasShield = true;
+			game.summonShield();
 		}
 	}
 	
@@ -221,14 +223,16 @@ class DefensiveSpells {
 		
 		@Override
 		public String text() {
-			return "Fire Golems: 2 " + EnergyType.name(EnergyType.RAW) + ", 1 " + EnergyType.name(EnergyType.WATER)
+			return color.get() + "Fire Golems" + Format.obj.ANSI_RESET() + ": 2 "
+					+ EnergyType.name(EnergyType.RAW) + ", 1 " + EnergyType.name(EnergyType.WATER)
 					+ ", 1 " + EnergyType.name(EnergyType.EARTH) + ", 1 " + EnergyType.name(EnergyType.FIRE)
 					+ " -> 3 fire golems";
 		}
 		
 		@Override
 		public String description() {
-			return "Fire Golems: Powerful golems that protect your base and still deal 2 damage per turn.";
+			return color.get() + "Fire Golems" + Format.obj.ANSI_RESET()
+					+ ": Powerful golems that protect your base and still deal 2 damage per turn.";
 		}
 		
 		@Override
@@ -242,7 +246,7 @@ class DefensiveSpells {
 			game.spend(EnergyType.WATER, 1);
 			game.spend(EnergyType.FIRE, 1);
 			game.spend(EnergyType.RAW, 2);
-			game.numFireGolems += 3;
+			game.summonFireGolems(3);
 		}
 	}
 
@@ -269,7 +273,7 @@ class DefensiveSpells {
 		@Override
 		public void execute(Game game) {
 			game.spend(EnergyType.RAW, 2 * n);
-			game.tempWalls += n;
+			game.buildTempWalls(n);
 		}
 		
 		private final int n;
@@ -304,7 +308,7 @@ class DefensiveSpells {
 			game.spend(EnergyType.FIRE, 1);
 			game.spend(EnergyType.WATER, 1);
 			game.spend(EnergyType.RAW, n);
-			game.energyShieldLifetime += n;
+			game.summonEnergyShield(n);
 		}
 		
 		private final int n;

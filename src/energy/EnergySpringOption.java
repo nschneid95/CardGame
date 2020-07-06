@@ -53,7 +53,7 @@ public class EnergySpringOption implements Option {
 		game.spend(EnergyType.WATER, 1);
 		game.spend(EnergyType.FIRE, 1);
 		game.spend(EnergyType.RAW, num);
-		game.numEnergySprings++;
+		game.addEnergySpring();
 	}
 	final int num;
 }

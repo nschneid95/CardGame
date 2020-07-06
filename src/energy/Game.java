@@ -29,6 +29,10 @@ public class Game {
 		enemy = new Enemy();
 	}
 	
+	// Deck querying
+	boolean has(EnergyType t, int n) {
+		return deck.getOrDefault(t, 0) >= n;
+	}
 	boolean hasWater(int n) {
 		return deck.getOrDefault(EnergyType.WATER, 0) >= n;
 	}
@@ -45,6 +49,7 @@ public class Game {
 		return deck.getOrDefault(EnergyType.RAW, 0) >= n;
 	}
 	
+	// Deck manipulation
 	void spend(EnergyType type, int n) throws IllegalStateException {
 		int newVal = deck.getOrDefault(type, 0) - n;
 		if (newVal < 0) {
@@ -54,17 +59,29 @@ public class Game {
 			deck.put(type, newVal);
 		}
 	}
+	void steal(EnergyType type, int n) {
+		if (energyShieldLifetime > 0)
+			return;
+		int newVal = deck.getOrDefault(type, 0) - n;
+		newVal = newVal > 0 ? newVal : 0;
+		deck.put(type, newVal);
+	}
+	void stealAll(EnergyType type) {
+		if (energyShieldLifetime > 0)
+			return;
+		deck.put(type, 0);
+	}
 	void insert(EnergyType type, int n) {
 		discard.merge(type, n, (x, y) -> x + y);
 	}
 	
+	// Endgame
 	void win() {
 		Printer.flush();
 		System.out.println("Congratulations you won!! Press return to exit");
 		try { System.in.read(); } catch (IOException e) { }
 		System.exit(0);
 	}
-	
 	void lose() {
 		Printer.flush();
 		System.out.println("Your base has been overriden and the capitalistic pigs have taken the Energy Spring for themselves.");
@@ -72,6 +89,63 @@ public class Game {
 		try { System.in.read(); } catch (IOException e) { }
 		System.exit(0);
 	}
+	
+	// Walls and damge
+	void buildWalls(int amt) { playerWalls += amt; }
+	void buildTempWalls(int amt) { tempWalls += amt; }
+	void buildEnemyWalls(int amt) { enemyWalls += amt; }
+	void dealDamage(int amt) {
+		if (focused)
+			amt *= 2;
+		focused = false;
+		enemyWalls -= amt;
+		if (enemyWalls <= 0)
+			win();
+	}
+	void takeDamage(int amt) {
+		if (hasShield)
+			return;
+		if (mirrorShieldLifetime > 0) {
+			enemyWalls -= amt;
+			if (enemyWalls <= 0)
+				win();
+		}
+		if (tempWalls >= amt) {
+			tempWalls -= amt;
+			return;
+		}
+		amt -= tempWalls;
+		tempWalls = 0;
+		if (numGolems >= amt) {
+			numGolems -= amt;
+			return;
+		}
+		amt -= numGolems;
+		numGolems = 0;
+		if (numFireGolems >= amt) {
+			numFireGolems -= amt;
+			return;
+		}
+		amt -= numFireGolems;
+		numFireGolems = 0;
+		playerWalls -= amt;
+		if (playerWalls <= 0)
+			lose();
+	}
+	
+	// Golems
+	void summonGolems(int amt) { numGolems += amt; }
+	void summonFireGolems(int amt) { numFireGolems += amt; }
+	
+	// Shields
+	boolean hasShield() { return hasShield; }
+	void summonShield() { hasShield = true; }
+	void summonEnergyShield(int days) { energyShieldLifetime += days; }
+	void summonMirrorShield(int days) { mirrorShieldLifetime += days; }
+	
+	boolean isFocused() { return focused; }
+	void focus() { focused = true; }
+	void addEnergySpring() { numEnergySprings++; }
 	
 	private void printMap(Map<EnergyType, Integer> map) {
 		String s = String.join(", ",
@@ -90,18 +164,33 @@ public class Game {
 	private void printInfo() {
 		Printer.printlnRight("Your walls: " + playerWalls);
 		Printer.printlnRight("Enemy walls: " + enemyWalls);
+		if (tempWalls > 0)
+			Printer.printlnRight(Format.obj.ANSI_BRIGHT_RED() + "Temporary walls: " + tempWalls + Format.obj.ANSI_RESET());
 		if (numGolems > 0)
-			Printer.printlnRight("Golems: " + numGolems);
+			Printer.printlnRight(Format.obj.ANSI_BRIGHT_CYAN() + "Golems: " + numGolems + Format.obj.ANSI_RESET());
 		if (numFireGolems > 0)
-			Printer.printlnRight("FireGolems: " + numFireGolems);
+			Printer.printlnRight(Format.obj.ANSI_BRIGHT_CYAN() + "FireGolems: " + numFireGolems + Format.obj.ANSI_RESET());
 		int lvl = OffensiveSpells.maxLevel;
 		Printer.printlnRight("Spell cost (" + EnergyType.name(EnergyType.WATER) + "): "
-			+ getValByLevel(researchCosts::spellCost, lvl));
-		Printer.printlnRight("Remaining defensive spells: " + getValByLevel(DefensiveSpells::numUnknown, lvl));
-		Printer.printlnRight("Remaning offensive spells: " + getValByLevel(OffensiveSpells::numUnknown, lvl));
-		Printer.printlnRight("Prayer cost(" + EnergyType.name(EnergyType.AIR) + "): "
-			+ getValByLevel(researchCosts::prayerCost, lvl));
-		Printer.printlnRight("Remaining prayers: " + getValByLevel(Prayers::numPrayers, lvl));
+				+ getValByLevel(researchCosts::spellCost, lvl));
+		Printer.printlnRight(DefensiveSpells.color.get() + "Remaining defensive spells: "
+				+ getValByLevel(DefensiveSpells::numUnknown, lvl) + Format.obj.ANSI_RESET());
+		Printer.printlnRight(OffensiveSpells.color.get() + "Remaning offensive spells: "
+				+ getValByLevel(OffensiveSpells::numUnknown, lvl) + Format.obj.ANSI_RESET());
+		Printer.printlnRight(Prayers.color.get() + "Prayer cost(" + EnergyType.name(EnergyType.AIR)
+				+ Prayers.color.get() + "): " + getValByLevel(researchCosts::prayerCost, lvl) + Format.obj.ANSI_RESET());
+		Printer.printlnRight(Prayers.color.get() + "Remaining prayers: "
+				+ getValByLevel(Prayers::numPrayers, lvl) + Format.obj.ANSI_RESET());
+		if (focused)
+			Printer.printlnRight(Format.obj.ANSI_BRIGHT_RED() + "Focused! Next attack gets 2x damage" + Format.obj.ANSI_RESET());
+		if (hasShield)
+			Printer.printlnRight(Format.obj.ANSI_BRIGHT_BLUE() + "Carbon Shield in place" + Format.obj.ANSI_RESET());
+		if (mirrorShieldLifetime > 0)
+			Printer.printlnRight(Format.obj.ANSI_BRIGHT_BLUE() + "Mirror Shield acive for "
+					+ mirrorShieldLifetime + " days" + Format.obj.ANSI_RESET());
+		if (energyShieldLifetime > 0)
+			Printer.printlnRight(Format.obj.ANSI_BRIGHT_BLUE() + "Energy Shield active for "
+					+ energyShieldLifetime + " days" + Format.obj.ANSI_RESET());
 	}
 	
 	private int mapSize(Map<EnergyType, Integer> m) {
@@ -180,6 +269,14 @@ public class Game {
 		// 4: Enemy turn
 		enemy.execute(this);
 		turnNum++;
+		
+		// 5: Clear temporary effects
+		tempWalls = 0;
+		hasShield = false;
+		if (mirrorShieldLifetime > 0)
+			mirrorShieldLifetime--;
+		if (energyShieldLifetime > 0)
+			energyShieldLifetime--;
 	}
 	
 	// Note: this function never returns; instead it ends the program once it finishes
@@ -188,20 +285,20 @@ public class Game {
 			playDay();
 	}
 	
-	Map<EnergyType, Integer> deck;
-	Map<EnergyType, Integer> discard;
+	private Map<EnergyType, Integer> deck;
+	private Map<EnergyType, Integer> discard;
 	private int turnNum;
-	int playerWalls;
-	int numGolems;
-	int numFireGolems;
-	int enemyWalls;
+	private int playerWalls;
+	private int numGolems;
+	private int numFireGolems;
+	private int enemyWalls;
 	private int baseEnergy;
-	int numEnergySprings;
+	private int numEnergySprings;
 	ResearchCosts researchCosts;
-	boolean focused;
-	int mirrorShieldLifetime;
-	boolean hasShield;
-	int tempWalls;
-	int energyShieldLifetime;
-	Enemy enemy;
+	private boolean focused;
+	private int mirrorShieldLifetime;
+	private boolean hasShield;
+	private int tempWalls;
+	private int energyShieldLifetime;
+	private Enemy enemy;
 }

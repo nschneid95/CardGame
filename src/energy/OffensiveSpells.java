@@ -1,6 +1,7 @@
 package energy;
 
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.List;
 
 public class OffensiveSpells {
 
+	static Supplier<String> color = Format.obj::ANSI_BRIGHT_YELLOW;
 	
 	public static List<Option> getOptions() {
 		List<Option> ret = new LinkedList<Option>();
@@ -61,7 +63,7 @@ public class OffensiveSpells {
 				adj = "legendary ";
 				break;
 			}
-			return "Research a new " + adj + "offensive spell";
+			return color.get() + "Research a new " + adj + "offensive spell" + Format.obj.ANSI_RESET();
 		}
 		
 		@Override
@@ -72,7 +74,7 @@ public class OffensiveSpells {
 		@Override
 		public void execute(Game game) throws IllegalStateException {
 			game.spend(EnergyType.WATER, game.researchCosts.spellCost(level));
-			Printer.printlnLeft(Format.obj.ANSI_CYAN() + "You learned: " + Format.obj.ANSI_RESET()
+			Printer.printlnLeft(Format.obj.ANSI_CYAN() + "You learned: "
 					+ unknown.get(level).remove((int)(Math.random() * unknown.get(level).size())).description()
 					+ Format.obj.ANSI_RESET());
 		}
@@ -90,11 +92,11 @@ public class OffensiveSpells {
 	// Level 2
 	private static Spell focus = new Focus();
 	private static Spell meteors = new SimpleOffensive("Meteors", "Hundreds of beachball sized flaming rocks rain down on your enemies.", new EnergyType.Counter().addFire(2).addEarth(1).addAir(1), 3);
-	private static Spell earthquake = new MultiSpell("Earthquake", "Earthquake: Shake the earth to shatter walls on both sides of the battlefield.",  Earthquake::all);
+	private static Spell earthquake = new MultiSpell(color, "Earthquake", "Shake the earth to shatter walls on both sides of the battlefield.",  Earthquake::all);
 	// Level 3
-	private static Spell matrix = new MultiSpell("Attack Matrix", "Attack Matrix: A ledgendary spell whose damage is only limited by your available power.", Matrix::all);
+	private static Spell matrix = new MultiSpell(color, "Attack Matrix", "A ledgendary spell whose damage is only limited by your available power.", Matrix::all);
 	private static Spell asteroid = new SimpleOffensive("Asteroid", "Call down an asteroid the size of a football field to crush your enemies.", new EnergyType.Counter().addFire(2).addEarth(2).addAir(1), 5);
-	private static Spell mirror = new MultiSpell("Mirror Shield", "Mirror Shield: An inpenetrable shield that reflects any damage dealt to it.", Mirror::all);
+	private static Spell mirror = new MultiSpell(color, "Mirror Shield", "An inpenetrable shield that reflects any damage dealt to it.", Mirror::all);
 	
 	private static Map<Integer, List<Spell>> all = Map.of(
 			0, List.of(fireball),
@@ -109,7 +111,7 @@ public class OffensiveSpells {
 	
 	private static class SimpleOffensive implements Spell {
 		SimpleOffensive(String name, String desc, EnergyType.Counter cost, int dmg) {
-			this.name = name;
+			this.name = color.get() + name + Format.obj.ANSI_RESET();
 			this.desc = desc;
 			this.cost = cost.getMap();
 			this.dmg = dmg;
@@ -139,9 +141,8 @@ public class OffensiveSpells {
 		@Override
 		public boolean isAllowed(Game game) {
 			for (Map.Entry<EnergyType, Integer> entry : cost.entrySet()) {
-				if (game.deck.getOrDefault(entry.getKey(), 0) < entry.getValue()) {
+				if (!game.has(entry.getKey(), entry.getValue()))
 					return false;
-				}
 			}
 			return true;
 		}
@@ -151,10 +152,7 @@ public class OffensiveSpells {
 			for (Map.Entry<EnergyType, Integer> entry : cost.entrySet()) {
 				game.spend(entry.getKey(), entry.getValue());
 			}
-			game.enemyWalls -= dmg;
-			if (game.enemyWalls <= 0) {
-				game.win();
-			}
+			game.dealDamage(dmg);
 		}
 		
 		private String name, desc;
@@ -167,25 +165,27 @@ public class OffensiveSpells {
 		
 		@Override
 		public String text() {
-			return "Focus: 3 " + EnergyType.name(EnergyType.RAW) + ", 2 " + EnergyType.name(EnergyType.EARTH)
-				+ " -> 2x damage next attack";
+			return color.get() + "Focus" + Format.obj.ANSI_RESET() + ": 3 "
+					+ EnergyType.name(EnergyType.RAW) + ", 2 " + EnergyType.name(EnergyType.EARTH)
+					+ " -> 2x damage next attack";
 		}
 		
 		@Override
 		public String description() {
-			return "Focus: Use grounding magic to remove distractions and double the damage of your next attack.";
+			return color.get() + "Focus" + Format.obj.ANSI_RESET()
+					+ ": Use grounding magic to remove distractions and double the damage of your next attack.";
 		}
 		
 		@Override
 		public boolean isAllowed(Game game) {
-			return !game.focused && game.hasEarth(2) && game.hasRaw(3);
+			return !game.isFocused() && game.hasEarth(2) && game.hasRaw(3);
 		}
 		
 		@Override
 		public void execute(Game game) throws IllegalStateException{
 			game.spend(EnergyType.EARTH, 2);
 			game.spend(EnergyType.RAW, 3);
-			game.focused = true;
+			game.focus();
 		}
 	}
 	
@@ -213,12 +213,8 @@ public class OffensiveSpells {
 		public void execute(Game game) {
 			game.spend(EnergyType.EARTH, 1);
 			game.spend(EnergyType.RAW, n);
-			game.playerWalls -= n;
-			if (game.playerWalls <= 0)
-				game.lose();
-			game.enemyWalls -= n;
-			if (game.enemyWalls <= 0)
-				game.win();
+			game.takeDamage(n);
+			game.dealDamage(n);
 		}
 		
 		private final int n;
@@ -247,9 +243,7 @@ public class OffensiveSpells {
 		@Override
 		public void execute(Game game) throws IllegalStateException {
 			game.spend(EnergyType.RAW, 2 * n);
-			game.enemyWalls -= n;
-			if (game.enemyWalls <= 0)
-				game.win();
+			game.dealDamage(n);
 		}
 		
 		private final int n;
@@ -284,7 +278,7 @@ public class OffensiveSpells {
 			game.spend(EnergyType.EARTH, 1);
 			game.spend(EnergyType.FIRE, 1);
 			game.spend(EnergyType.RAW, n);
-			game.mirrorShieldLifetime += n;
+			game.summonMirrorShield(n);
 		}
 		
 		private final int n;
