@@ -8,7 +8,7 @@ public class EnergyRefinementOption implements Option {
 	public static EnergyRefinementOption earth = new EnergyRefinementOption(EnergyType.EARTH);
 	public static EnergyRefinementOption air = new EnergyRefinementOption(EnergyType.AIR);
 	
-	public static List<EnergyRefinementOption> all = List.of(fire, water, earth, air);
+	public static List<EnergyRefinementOption> all = List.of(water, earth, fire, air);
 	
 	private EnergyRefinementOption(EnergyType type) {
 		this.type = type;

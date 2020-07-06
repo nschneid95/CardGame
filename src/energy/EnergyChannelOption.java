@@ -9,7 +9,7 @@ public class EnergyChannelOption implements Option {
 	public static EnergyChannelOption earth = new EnergyChannelOption(EnergyType.EARTH);
 	public static EnergyChannelOption air = new EnergyChannelOption(EnergyType.AIR);
 	
-	public static List<EnergyChannelOption> all = List.of(fire, water, earth, air);
+	public static List<EnergyChannelOption> all = List.of(water, earth, fire, air);
 	
 	public static Map<EnergyType, EnergyChannelOption> typeToOption = Map.of(
 			EnergyType.FIRE, fire, EnergyType.WATER, water, EnergyType.AIR, air, EnergyType.EARTH, earth);
