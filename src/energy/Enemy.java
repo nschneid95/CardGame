@@ -12,58 +12,64 @@ public class Enemy {
 		moves = new HashMap<Integer, List<Move>>();
 		// Level 1
 		List<Move> list = new ArrayList<Move>();
-		list.addAll(Collections.nCopies(5, new Pass()));
-		list.addAll(Collections.nCopies(4, new Damage(1)));
+		list.addAll(Collections.nCopies(2, new Pass()));
+		list.addAll(Collections.nCopies(2, new Damage(1)));
 		list.add(new Damage(2));
 		moves.put(1, list);
 		// Level 2
 		list = new ArrayList<Move>();
-		list.addAll(Collections.nCopies(5, new Damage(1)));
-		list.addAll(Collections.nCopies(4, new Damage(2)));
+		list.addAll(Collections.nCopies(2, new Damage(1)));
+		list.addAll(Collections.nCopies(2, new Damage(2)));
 		list.add(new Damage(3));
 		list.replaceAll(x -> new Chain(x, new Heal(1)));
 		moves.put(2, list);
 		// Level 3
 		list = new ArrayList<Move>();
-		list.addAll(Collections.nCopies(2, new Damage(2)));
-		list.addAll(Collections.nCopies(4, new Damage(3)));
-		list.addAll(Collections.nCopies(2, new Damage(4)));
-		list.addAll(Collections.nCopies(2, new Steal(EnergyType.RAW, 4)));
+		list.add(new Damage(2));
+		list.addAll(Collections.nCopies(2, new Damage(3)));
+		list.add(new Damage(4));
+		list.add(new Steal(EnergyType.RAW, 4));
 		list.replaceAll(x -> new Chain(x, new Heal(2)));
 		moves.put(3, list);
 		// Level 4
 		list = new ArrayList<Move>();
-		list.addAll(Collections.nCopies(4, new Damage(4)));
-		list.addAll(Collections.nCopies(2, new Steal(EnergyType.RAW, 4)));
-		for (EnergyType type : EnergyType.values())
-			if (type != EnergyType.RAW)
-				list.add(new Steal(type, 3));
+		list.addAll(Collections.nCopies(2, new Damage(4)));
+		list.add(new Steal(EnergyType.RAW, 4));
+		list.add(new Steal(EnergyType.AIR, 4));
+		list.add(new Steal(EnergyType.WATER, 4));
 		list.replaceAll(x -> new Chain(x, new Heal(4)));
 		moves.put(4, list);
 		// Level 5
 		list = new ArrayList<Move>();
-		list.addAll(Collections.nCopies(2, new Damage(4)));
-		list.addAll(Collections.nCopies(2, new Damage(5)));
-		list.addAll(Collections.nCopies(2, new StealAll(EnergyType.RAW)));
-		for (EnergyType type : EnergyType.values())
-			if (type != EnergyType.RAW)
-				list.add(new StealAll(type));
+		list.add(new Damage(4));
+		list.add(new Damage(5));
+		list.add(new Steal(EnergyType.RAW, 4));
+		list.add(new Steal(EnergyType.EARTH, 4));
+		list.add(new Steal(EnergyType.FIRE, 4));
 		list.replaceAll(x -> new Chain(x, new Heal(5)));
 		moves.put(5, list);
 		// Level 6
 		list = new ArrayList<Move>();
-		list.addAll(Collections.nCopies(2, new Damage(4)));
-		list.addAll(Collections.nCopies(2, new Damage(5)));
-		list.addAll(Collections.nCopies(2, new StealAll(EnergyType.RAW)));
-		for (EnergyType type : EnergyType.values())
-			if (type != EnergyType.RAW)
-				list.add(new StealAll(type));
-		list.replaceAll(x -> new Chain(x, new Heal(6)));
+		list.add(new Damage(5));
+		list.add(new Damage(5));
+		list.add(new StealAll(EnergyType.RAW));
+		list.add(new StealAll(EnergyType.AIR));
+		list.add(new StealAll(EnergyType.WATER));
+		list.replaceAll(x -> new Chain(x, new Heal(5)));
 		moves.put(6, list);
 		// Level 7
 		list = new ArrayList<Move>();
-		list.addAll(Collections.nCopies(5, new Damage(5)));
-		list.addAll(Collections.nCopies(2, new Damage(7)));
+		list.add(new Damage(5));
+		list.add(new Damage(6));
+		list.add(new StealAll(EnergyType.RAW));
+		list.add(new StealAll(EnergyType.EARTH));
+		list.add(new StealAll(EnergyType.FIRE));
+		list.replaceAll(x -> new Chain(x, new Heal(5)));
+		moves.put(7, list);
+		// Level 8
+		list = new ArrayList<Move>();
+		list.add(new Damage(5));
+		list.add(new Damage(7));
 		list.add(new Damage(10));
 		list.add(new Chain(new StealAll(EnergyType.AIR), new StealAll(EnergyType.WATER)));
 		list.add(new Chain(new StealAll(EnergyType.FIRE), new StealAll(EnergyType.EARTH)));

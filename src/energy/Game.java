@@ -230,7 +230,7 @@ public class Game {
 			});
 			options.addAll(EnergyRefinementOption.all);
 			options.addAll(EnergyChannelOption.all);
-			options.add(EnergySpringOption.get(numEnergySprings));
+			options.add(EnergySpringOption.get());
 			options.addAll(DefensiveSpells.getOptions());
 			options.addAll(OffensiveSpells.getOptions());
 			options.addAll(Prayers.getOptions());
