@@ -90,7 +90,7 @@ public class Enemy {
 			return;
 		}
 		// If you run out of turns, you lose
-		game.lose();
+		game.lose("You wake up to see the entire galactic fleet outside your window for a second before your entire base is vaporized.");
 	}
 	
 	private Map<Integer, List<Move>> moves;

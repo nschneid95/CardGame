@@ -1,7 +1,7 @@
 package energy;
 
 public class EnergySpringOption implements Option {
-	private static EnergySpringOption nextEnergySpring = new EnergySpringOption(0);
+	private static EnergySpringOption nextEnergySpring = new EnergySpringOption(1);
 	
 	public static Option get() {
 		return nextEnergySpring;

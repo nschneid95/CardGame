@@ -17,14 +17,43 @@ public class Prayers {
 			ret.add(Research.levelTwo);
 		if (maxLevel > 2)
 			ret.add(Research.levelThree);
+		ret.add(new NextPrayerLevel());
 		return ret;
 	}
 	
-	public static int numPrayers(int level) {
-		return remaining.getOrDefault(level, List.of()).size();
+	public static int numPrayers() {
+		return remaining.getOrDefault(maxLevel, List.of()).size();
 	}
 	
+	public static int getLevel() { return maxLevel; }
+	
 	private static int maxLevel = 1;
+
+	private static class NextPrayerLevel implements Option {
+		public String text() {
+			return color.get() + "Empower Spirit: " + (5 * maxLevel) + " " + Format.obj.ANSI_RESET()
+					+ EnergyType.name(EnergyType.AIR) + color.get() + ", " + maxLevel + " "
+					+ Format.obj.ANSI_RESET() + EnergyType.name(EnergyType.AIR) + color.get()
+					+ " per week -> more powerful prayers" + Format.obj.ANSI_RESET();
+		}
+		
+		public boolean isAllowed(Game game) {
+			return maxLevel < 3 && remaining.get(maxLevel).size() == 0 && game.hasAir(5 * maxLevel);
+		}
+		
+		public void execute(Game game) {
+			Printer.printLeft(color.get());
+			if (maxLevel == 1)
+				Printer.printLeft("The air spirit hungrily gulps down the energy. Their new powerful aura makes you feel uneasy.");
+			else
+				Printer.printLeft("The air spirit visibly grows larger. You feel your mind beginning to crumble when in their presence.");
+			Printer.printlnLeft(Format.obj.ANSI_RESET());
+			game.spend(EnergyType.AIR, maxLevel * 5);
+			game.addDailyAirCost(maxLevel);
+			maxLevel++;
+			
+		}
+	}
 	
 	static class Research implements Option {
 		
@@ -60,6 +89,10 @@ public class Prayers {
 			game.spend(EnergyType.AIR, game.researchCosts.prayerCost(level));
 			Prayer p = remaining.get(level).remove((int)(Math.random() * remaining.get(level).size()));
 			Printer.printlnLeft(color.get() + p.text() + Format.obj.ANSI_RESET());
+			if (remaining.get(maxLevel).isEmpty())
+				Printer.printlnLeft(color.get() + Format.obj.ANSI_BOLD()
+						+ "You've run out of prayers, but the spirit whispers of a forbidden ritual to strengthen themselves..."
+						+ Format.obj.ANSI_RESET());
 			p.execute(game);
 		}
 		
@@ -83,7 +116,6 @@ public class Prayers {
 		public void execute(Game game) {
 			DefensiveSpells.maxLevel++;
 			OffensiveSpells.maxLevel++;
-			maxLevel++;
 		}
 		
 		@Override

@@ -27,6 +27,8 @@ public class Game {
 		researchCosts = ResearchCosts.BaseCosts();
 		focused = false;
 		enemy = new Enemy();
+		dailyAirCost = 0;
+		hadSpiritWarning = false;
 	}
 	
 	// Deck querying
@@ -81,6 +83,7 @@ public class Game {
 	void insert(EnergyType type, int n) {
 		discard.merge(type, n, (x, y) -> x + y);
 	}
+	void addDailyAirCost(int n) { dailyAirCost += n; }
 	
 	// Endgame
 	void win() {
@@ -89,10 +92,9 @@ public class Game {
 		try { System.in.read(); } catch (IOException e) { }
 		System.exit(0);
 	}
-	void lose() {
+	void lose(String text) {
 		Printer.flush();
-		System.out.println("Your base has been overriden and the capitalistic pigs have taken the Energy Spring for themselves.");
-		System.out.println("Better luck next time! Press return to exit");
+		System.out.println(text);
 		try { System.in.read(); } catch (IOException e) { }
 		System.exit(0);
 	}
@@ -138,7 +140,7 @@ public class Game {
 		numFireGolems = 0;
 		playerWalls -= amt;
 		if (playerWalls <= 0)
-			lose();
+			lose("The soldier drones of the government climb over the ruins of your last wall and slaughter everyone in the base.");
 		return amt;
 	}
 	
@@ -187,9 +189,9 @@ public class Game {
 		Printer.printlnRight(OffensiveSpells.color.get() + "Remaning offensive spells: "
 				+ getValByLevel(OffensiveSpells::numUnknown, lvl) + Format.obj.ANSI_RESET());
 		Printer.printlnRight(Prayers.color.get() + "Prayer cost(" + EnergyType.name(EnergyType.AIR)
-				+ Prayers.color.get() + "): " + getValByLevel(researchCosts::prayerCost, lvl) + Format.obj.ANSI_RESET());
-		Printer.printlnRight(Prayers.color.get() + "Remaining prayers: "
-				+ getValByLevel(Prayers::numPrayers, lvl) + Format.obj.ANSI_RESET());
+				+ Prayers.color.get() + "): " + researchCosts.prayerCost(Prayers.getLevel()) + Format.obj.ANSI_RESET());
+		Printer.printlnRight(Prayers.color.get() + "Remaining prayers: " + Prayers.numPrayers()
+				+ Format.obj.ANSI_RESET());
 		if (focused)
 			Printer.printlnRight(Format.obj.ANSI_BRIGHT_RED() + "Focused! Next attack gets 2x damage" + Format.obj.ANSI_RESET());
 		if (hasShield)
@@ -260,6 +262,26 @@ public class Game {
 
 	private void playDay() {
 		System.out.println("======================================== WEEK " + turnNum + " =======================================");
+		// 0: Daily air cost
+		if (dailyAirCost > 0) {
+			if (hasAir(dailyAirCost)) {
+				spend(EnergyType.AIR, dailyAirCost);
+				Printer.printlnLeft(Prayers.color.get() + "The spirit eats " + dailyAirCost + " "
+						+ Format.obj.ANSI_RESET() + EnergyType.name(EnergyType.AIR));
+			} else {
+				if (hadSpiritWarning) {
+					if (Prayers.getLevel() == 2)
+						lose("\"You missed your payment.\" whispers the spirit. They snap their fingers and all the air on the planet dissapears with them. Everyone is dead in minutes.");
+					else
+						lose("\"You missed your payment!\" screams the spirit as reality warps and splinters around them. In a fit of anger they tear through the barrier between the two planes,\n"
+								+ "causing the spirit plane and the physical plane to collide. The Raw energy created explodes outwards destroying everything it touches until all reality is destroyed.");
+				} else {
+					Printer.printlnLeft("You missed your daily air payment. The spirit has a brief talk with you that leaves you quivering...");
+					hadSpiritWarning = true;
+				}
+			}
+		}
+		
 		// 1: Play cards
 		playCards();
 		
@@ -310,4 +332,6 @@ public class Game {
 	private int tempWalls;
 	private int energyShieldLifetime;
 	private Enemy enemy;
+	private int dailyAirCost;
+	private boolean hadSpiritWarning;
 }
