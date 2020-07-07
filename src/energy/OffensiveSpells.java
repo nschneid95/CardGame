@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -15,25 +16,13 @@ public class OffensiveSpells {
 	
 	public static List<Option> getOptions() {
 		List<Option> ret = new LinkedList<Option>();
-		switch (maxLevel) {
-		case 3:
-			ret.add(Research.levelThree);
-		case 2:
+		ret.add(Research.levelOne);
+		if (maxLevel > 1)
 			ret.add(Research.levelTwo);
-		case 1:
-			ret.add(Research.levelOne);
-			break;
-		default:
-			throw new IllegalStateException("Unexpected offensive maxLevel: " + maxLevel);
-		}
-		for (Map.Entry<Integer, List<Spell>> entry : all.entrySet()) {
-			int level = entry.getKey();
-			if (level > maxLevel)
-				continue;
-			for (Option spell : entry.getValue()) {
-				if (!unknown.containsKey(level) || !unknown.get(level).contains(spell))
-					ret.add(spell);
-			}
+		if (maxLevel > 2)
+			ret.add(Research.levelThree);
+		for (Spell spell : learned) {
+			ret.add(spell);
 		}
 		return ret;
 	}
@@ -74,9 +63,10 @@ public class OffensiveSpells {
 		@Override
 		public void execute(Game game) throws IllegalStateException {
 			game.spend(EnergyType.WATER, game.researchCosts.spellCost(level));
+			Spell spell = unknown.get(level).remove((int)(Math.random() * unknown.get(level).size()));
+			learned.add(spell);
 			Printer.printlnLeft(Format.obj.ANSI_CYAN() + "You learned: "
-					+ unknown.get(level).remove((int)(Math.random() * unknown.get(level).size())).description()
-					+ Format.obj.ANSI_RESET());
+					+ spell.description());
 		}
 		
 		private int level;
@@ -98,15 +88,11 @@ public class OffensiveSpells {
 	private static Spell asteroid = new SimpleOffensive("Asteroid", "Call down an asteroid the size of a football field to crush your enemies.", new EnergyType.Counter().addFire(2).addEarth(2).addAir(1), 5);
 	private static Spell mirror = new MultiSpell(color, "Mirror Shield", "An inpenetrable shield that reflects any damage dealt to it.", Mirror::all);
 	
-	private static Map<Integer, List<Spell>> all = Map.of(
-			0, List.of(fireball),
-			1, List.of(lava, steam, superFB),
-			2, List.of(focus, meteors, earthquake),
-			3, List.of(matrix, asteroid, mirror));
 	private static Map<Integer, List<Spell>> unknown = new HashMap<Integer, List<Spell>>(Map.of(
 			1, new ArrayList<Spell>(List.of(lava, steam, superFB)),
 			2, new ArrayList<Spell>(List.of(focus, meteors, earthquake)),
 			3, new ArrayList<Spell>(List.of(matrix, asteroid, mirror))));
+	private static List<Spell> learned = new LinkedList<Spell>(List.of(fireball));
 	static int maxLevel = 1;
 	
 	private static class SimpleOffensive implements Spell {

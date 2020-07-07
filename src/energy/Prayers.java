@@ -7,22 +7,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import energy.OffensiveSpells.Research;
+
 public class Prayers {
 	static Supplier<String> color = Format.obj::ANSI_BRIGHT_PURPLE;
 	
 	public static List<Option> getOptions() {
 		List<Option> ret = new LinkedList<Option>();
-		switch (maxLevel) {
-		case 3:
-			ret.add(Research.levelThree);
-		case 2:
+		ret.add(Research.levelOne);
+		if (maxLevel > 1)
 			ret.add(Research.levelTwo);
-		case 1:
-			ret.add(Research.levelOne);
-			break;
-		default:
-			throw new IllegalStateException("Unexpected defensive maxLevel: " + maxLevel);
-		}
+		if (maxLevel > 2)
+			ret.add(Research.levelThree);
 		return ret;
 	}
 	

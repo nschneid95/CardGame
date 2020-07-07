@@ -15,25 +15,13 @@ class DefensiveSpells {
 	
 	public static List<Option> getOptions() {
 		List<Option> ret = new LinkedList<Option>();
-		switch (maxLevel) {
-		case 3:
-			ret.add(Research.levelThree);
-		case 2:
+		ret.add(Research.levelOne);
+		if (maxLevel > 1)
 			ret.add(Research.levelTwo);
-		case 1:
-			ret.add(Research.levelOne);
-			break;
-		default:
-			throw new IllegalStateException("Unexpected defensive maxLevel: " + maxLevel);
-		}
-		for (Map.Entry<Integer, List<Spell>> entry : all.entrySet()) {
-			int level = entry.getKey();
-			if (level > maxLevel)
-				continue;
-			for (Option spell : entry.getValue()) {
-				if (!unknown.containsKey(level) || !unknown.get(level).contains(spell))
-					ret.add(spell);
-			}
+		if (maxLevel > 2)
+			ret.add(Research.levelThree);
+		for (Spell spell : learned) {
+			ret.add(spell);
 		}
 		return ret;
 	}
@@ -74,9 +62,10 @@ class DefensiveSpells {
 		@Override
 		public void execute(Game game) throws IllegalStateException {
 			game.spend(EnergyType.WATER, game.researchCosts.spellCost(level));
+			Spell spell = unknown.get(level).remove((int)(Math.random() * unknown.get(level).size()));
+			learned.add(spell);
 			Printer.printlnLeft(Format.obj.ANSI_CYAN() + "You learned: "
-					+ unknown.get(level).remove((int)(Math.random() * unknown.get(level).size())).description());
-			
+					+ spell.description());
 		}
 		
 		private int level;
@@ -96,16 +85,12 @@ class DefensiveSpells {
 	private static Spell fireGolems = new FireGolems();
 	private static Spell matrix = new MultiSpell(color, "Defense Matrix", "Summon an efficient but temporary matrix to protect your base.",Matrix::all);
 	private static Spell energyShield = new MultiSpell(color, "Energy Shield", "Summon a shield protecting your energy deck from attack.", EnergyShield::all);
-	
-	private static Map<Integer, List<Spell>> all = Map.of(
-			0, List.of(walls),
-			1, List.of(sandStorm, strongWalls, quickSand),
-			2, List.of(golems, shield, moat),
-			3, List.of(fireGolems, matrix, energyShield));
+
 	private static Map<Integer, List<Spell>> unknown = new HashMap<Integer, List<Spell>>(Map.of(
 			1, new ArrayList<Spell>(List.of(sandStorm, strongWalls, quickSand)),
 			2, new ArrayList<Spell>(List.of(golems, shield, moat)),
 			3, new ArrayList<Spell>(List.of(fireGolems, matrix, energyShield))));
+	private static List<Spell> learned = new LinkedList<Spell>(List.of(walls));
 	static int maxLevel = 1;
 	
 	private static class SimpleDefensive implements Spell {
