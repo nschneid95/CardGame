@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import energy.OffensiveSpells.Research;
-
 public class Prayers {
 	static Supplier<String> color = Format.obj::ANSI_BRIGHT_PURPLE;
 	
