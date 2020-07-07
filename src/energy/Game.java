@@ -23,7 +23,7 @@ public class Game {
 		numFireGolems = 0;
 		enemyWalls = 10;
 		baseEnergy = 8 - difficulty;
-		numEnergySprings = 5;
+		numEnergySprings = 0;
 		researchCosts = ResearchCosts.BaseCosts();
 		focused = false;
 		enemy = new Enemy();
