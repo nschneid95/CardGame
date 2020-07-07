@@ -259,7 +259,7 @@ public class Game {
 	}
 
 	private void playDay() {
-		System.out.println("======================================== DAY " + turnNum + " =======================================");
+		System.out.println("======================================== WEEK " + turnNum + " =======================================");
 		// 1: Play cards
 		playCards();
 		
