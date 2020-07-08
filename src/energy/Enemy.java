@@ -8,24 +8,25 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class Enemy {
-	public Enemy() {
+	public Enemy(int difficulty) {
+		int rev = 10 - difficulty;
 		moves = new HashMap<Integer, List<Move>>();
 		// Level 1
 		List<Move> list = new ArrayList<Move>();
-		list.addAll(Collections.nCopies(2, new Pass()));
+		list.addAll(Collections.nCopies(2 + rev / 2, new Pass()));
 		list.addAll(Collections.nCopies(2, new Damage(1)));
 		list.add(new Damage(2));
 		moves.put(1, list);
 		// Level 2
 		list = new ArrayList<Move>();
-		list.addAll(Collections.nCopies(2, new Damage(1)));
+		list.addAll(Collections.nCopies(2 + rev / 3, new Damage(1)));
 		list.addAll(Collections.nCopies(2, new Damage(2)));
 		list.add(new Damage(3));
 		list.replaceAll(x -> new Chain(x, new Heal(1)));
 		moves.put(2, list);
 		// Level 3
 		list = new ArrayList<Move>();
-		list.add(new Damage(2));
+		list.addAll(Collections.nCopies(1 + rev / 4, new Damage(2)));
 		list.addAll(Collections.nCopies(2, new Damage(3)));
 		list.add(new Damage(4));
 		list.add(new Steal(EnergyType.RAW, 4));
@@ -33,7 +34,7 @@ public class Enemy {
 		moves.put(3, list);
 		// Level 4
 		list = new ArrayList<Move>();
-		list.addAll(Collections.nCopies(2, new Damage(4)));
+		list.addAll(Collections.nCopies(2 + rev / 5, new Damage(4)));
 		list.add(new Steal(EnergyType.RAW, 4));
 		list.add(new Steal(EnergyType.AIR, 4));
 		list.add(new Steal(EnergyType.WATER, 4));
@@ -41,7 +42,7 @@ public class Enemy {
 		moves.put(4, list);
 		// Level 5
 		list = new ArrayList<Move>();
-		list.add(new Damage(4));
+		list.addAll(Collections.nCopies(1 + rev / 6, new Damage(4)));
 		list.add(new Damage(5));
 		list.add(new Steal(EnergyType.RAW, 4));
 		list.add(new Steal(EnergyType.EARTH, 4));
@@ -50,7 +51,7 @@ public class Enemy {
 		moves.put(5, list);
 		// Level 6
 		list = new ArrayList<Move>();
-		list.add(new Damage(5));
+		list.addAll(Collections.nCopies(1 + rev / 7, new Damage(5)));
 		list.add(new Damage(5));
 		list.add(new StealAll(EnergyType.RAW));
 		list.add(new StealAll(EnergyType.AIR));
@@ -59,7 +60,7 @@ public class Enemy {
 		moves.put(6, list);
 		// Level 7
 		list = new ArrayList<Move>();
-		list.add(new Damage(5));
+		list.addAll(Collections.nCopies(1 + rev / 8, new Damage(5)));
 		list.add(new Damage(6));
 		list.add(new StealAll(EnergyType.RAW));
 		list.add(new StealAll(EnergyType.EARTH));
@@ -68,7 +69,7 @@ public class Enemy {
 		moves.put(7, list);
 		// Level 8
 		list = new ArrayList<Move>();
-		list.add(new Damage(5));
+		list.addAll(Collections.nCopies(1 + rev / 9, new Damage(5)));
 		list.add(new Damage(7));
 		list.add(new Damage(10));
 		list.add(new Chain(new StealAll(EnergyType.AIR), new StealAll(EnergyType.WATER)));

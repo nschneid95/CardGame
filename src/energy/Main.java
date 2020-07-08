@@ -75,12 +75,12 @@ public class Main {
 				
 				"Good luck. You are our last hope.");
 		
-		System.out.println("Please enter a difficulty ranging from 1 (easiest) to 6 (hardest):");
+		System.out.println("Please enter a difficulty ranging from 1 (easiest) to 10 (hardest):");
 		int difficulty = -1;
 		boolean first = true;
-		while (difficulty < 1 || difficulty > 6) {
+		while (difficulty < 1 || difficulty > 10) {
 			if (!first)
-				System.out.println("Please enter a number between 1 and 6");
+				System.out.println("Please enter a number between 1 and 10");
 			input = scan.nextLine();
 			try {
 				difficulty = Integer.parseInt(input);

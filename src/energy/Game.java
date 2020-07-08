@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Game {
-	// Difficulty ranges from 1 (easiest) to 6 (hardest)
+	// Difficulty ranges from 1 (easiest) to 10 (hardest)
 	public Game(int difficulty) {
 		deck = new HashMap<EnergyType, Integer>();
 		deck.put(EnergyType.RAW, 8);
@@ -22,11 +22,11 @@ public class Game {
 		numGolems = 0;
 		numFireGolems = 0;
 		enemyWalls = 10;
-		baseEnergy = 8 - difficulty;
+		baseEnergy = 11 - difficulty;
 		numEnergySprings = 0;
 		researchCosts = ResearchCosts.BaseCosts();
 		focused = false;
-		enemy = new Enemy();
+		enemy = new Enemy(difficulty);
 		dailyAirCost = 0;
 		hadSpiritWarning = false;
 	}
