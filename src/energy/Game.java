@@ -1,6 +1,7 @@
 package energy;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ public class Game {
 		enemy = new Enemy(difficulty);
 		dailyAirCost = 0;
 		hadSpiritWarning = false;
+		gameOverText = Optional.empty();
 	}
 	
 	// Deck querying
@@ -87,14 +89,15 @@ public class Game {
 	
 	// Endgame
 	void win() {
-		Printer.flush();
-		System.out.println("Congratulations you won!! Press return to exit");
-		try { System.in.read(); } catch (IOException e) { }
-		System.exit(0);
+		gameOverText = Optional.of("Congratulations, you won!! The world is safe from the evil capitalists!");
 	}
 	void lose(String text) {
+		gameOverText = Optional.of(text);
+	}
+	private void gameOver() {
+		Printer.printlnLeft(gameOverText.get());
+		Printer.printlnLeft("Press return to exit");
 		Printer.flush();
-		System.out.println(text);
 		try { System.in.read(); } catch (IOException e) { }
 		System.exit(0);
 	}
@@ -253,6 +256,9 @@ public class Game {
 				int choice = Selection.makeSelection(filteredOptions);
 				filteredOptions[choice].execute(this);
 			}
+			
+			if (gameOverText.isPresent())
+				gameOver();
 		}
 		
 		// Discard the rest of the deck
@@ -281,6 +287,8 @@ public class Game {
 				}
 			}
 		}
+		if (gameOverText.isPresent())
+			gameOver();
 		
 		// 1: Play cards
 		playCards();
@@ -291,6 +299,9 @@ public class Game {
 		if (enemyWalls <= 0)
 			win();
 		
+		if (gameOverText.isPresent())
+			gameOver();
+		
 		// 3: Re-shuffle deck and add raw energy
 		deck = discard;
 		discard = new HashMap<EnergyType, Integer>();
@@ -300,6 +311,8 @@ public class Game {
 		// 4: Enemy turn
 		enemy.execute(this);
 		turnNum++;
+		if (gameOverText.isPresent())
+			gameOver();
 		
 		// 5: Clear temporary effects
 		tempWalls = 0;
@@ -334,4 +347,5 @@ public class Game {
 	private Enemy enemy;
 	private int dailyAirCost;
 	private boolean hadSpiritWarning;
+	Optional<String> gameOverText;
 }
