@@ -78,12 +78,11 @@ public class Main {
 			}
 			System.out.println("Chosen width: " + width);
 		}
-		
-		
-		// Single column mode
-		Printer.setRightAlign(width);
+		Printer.setWidth(width);
+
+		// Introduction
+		Printer.setSingleCol(true);
 		Printer.setIndent(0);
-		
 		if (width > 71) {
 			Printer.printlnLeft("   ______                               _____            _             ");
 			Printer.printlnLeft("  |  ____|                             / ____|          (_)            ");
@@ -95,7 +94,7 @@ public class Main {
 			Printer.printlnLeft("                         |___/ |___/         |_|                 |___/ ");
 			Printer.printlnLeft("");
 		} else {
-			Printer.printlnLeft("Energy Spring");
+			Printer.printlnLeft("Energy Spring", Color.BrightWhite);
 		}
 		Printer.printlnLeft(
 				"You live in a world where magic and spirits are commonplace. " +
@@ -148,8 +147,8 @@ public class Main {
 		Printer.printlnLeft("");
 		Printer.printlnLeft("Good luck. You are our last hope.");
 		Printer.flush();
-		Printer.setRightAlign(3 * width / 4);
-		Printer.setIndent(3);
+		Printer.setSingleCol(false);
+		Printer.setIndents(3, 1);
 		
 		System.out.println("Please enter a difficulty ranging from 1 (easiest) to 10 (hardest):");
 		Optional<Integer> difficulty = Optional.empty();

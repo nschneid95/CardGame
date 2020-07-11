@@ -280,7 +280,7 @@ public class Game {
 	}
 
 	private void playDay() {
-		System.out.println("======================================== WEEK " + turnNum + " =======================================");
+		Printer.printBanner("WEEK " + turnNum);
 		// 0: Daily air cost
 		if (dailyAirCost > 0) {
 			if (hasAir(dailyAirCost)) {

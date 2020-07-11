@@ -1,6 +1,7 @@
 package energy;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.ArrayList;
@@ -105,11 +106,11 @@ class DefensiveSpells {
 			ColoredString.Builder str = new ColoredString.Builder();
 			str.append(name);
 			str.append(": ");
-			str.append(String.join(", ",
+			str.append(ColoredString.join(new ColoredString(", "),
 					cost.entrySet().stream()
 					.sorted((x, y) -> x.getKey().compareTo(y.getKey()))
-					.map(x -> x.getValue() + " " + EnergyType.name(x.getKey()))
-					.toArray(String[]::new)));
+					.map(x -> new ColoredString(x.getValue() + " ").append(EnergyType.name(x.getKey())))
+					.collect(Collectors.toList())));
 			str.append(" -> ");
 			str.append(def.toString());
 			str.append(" walls");

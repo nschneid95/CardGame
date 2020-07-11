@@ -20,17 +20,18 @@ class Printer {
 	}
 	
 	public static void printlnRight(ColoredString s) {
-		right.append(s);
-		right.append("\n");
+		printRight(s);
+		printRight("\n");
 	}
 	
 	public static void printlnRight(String s) {
-		right.append(s);
-		right.append("\n");
+		printRight(s);
+		printRight("\n");
 	}
 	
 	public static void printlnRight(String s, Color c) {
-		printlnRight(new ColoredString(s, c));
+		printRight(s, c);
+		printRight("\n");
 	}
 	
 	public static void printLeft(ColoredString s) {
@@ -46,43 +47,66 @@ class Printer {
 	}
 	
 	public static void printRight(ColoredString s) {
+		if (singleCol) {
+			throw new IllegalStateException("Cannot print to right side while using single column mode!");
+		}
 		right.append(s);
 	}
 	
 	public static void printRight(String s) {
-		right.append(s);
+		printRight(new ColoredString(s));
 	}
 	
 	public static void printRight(String s, Color c) {
 		printRight(new ColoredString(s, c));
 	}
 	
+	public static void printBanner(String s) {
+		if (left.length() > 0 || right.length() > 0)
+			throw new IllegalStateException("Cannot print a banner with pending text!");
+		int padding = (width - s.length() - 2) / 2;
+		System.out.print("=".repeat(padding));
+		System.out.print(" ");
+		System.out.print(s);
+		System.out.print(" ");
+		System.out.println("=".repeat(padding));
+	}
+	
 	private static ColoredString join(ColoredString l, ColoredString r) {
-		return l.append(new ColoredString(new String(" ".repeat(rightAlign - l.length())))).append(r);
+		StringBuilder pad = new StringBuilder();
+		for (int i = l.length(); i < leftWidth(); i++)
+			pad.append(' ');
+		return l.append(pad.toString()).append(r);
 	}
 	
 	private static ColoredString pad(ColoredString r) {
-		return new ColoredString(new String(" ".repeat(rightAlign))).append(r);
+		StringBuilder pad = new StringBuilder();
+		for (int i = 0; i < leftWidth(); i++)
+			pad.append(' ');
+		return new ColoredString(pad.toString()).append(r);
 	}
 	
-	private static List<ColoredString> wrapLine(ColoredString line) {
-		if (line.length() < rightAlign)
+	private static List<ColoredString> wrapLine(ColoredString line, int maxWidth, int indent) {
+		if (line.length() < maxWidth)
 			return List.of(line);
 		List<ColoredString> ret = new LinkedList<ColoredString>();
 		List<ColoredString> curr = new LinkedList<ColoredString>();
 		int currLength = 0;
 		List<ColoredString> parts = line.split(' ');
 		for (ColoredString part : parts) {
-			if (part.length() + 1 + currLength < rightAlign) {
+			if (part.length() + 1 + currLength < maxWidth) {
 				curr.add(part);
 				currLength += 1 + part.length();
 			} else {
 				ret.add(ColoredString.join(" ", curr));
 				curr = new LinkedList<ColoredString>();
+				StringBuilder b = new StringBuilder();
+				for (int i = 0; i < indent; i++)
+					b.append(' ');
 				if (indent > 0)
-					curr.add(new ColoredString(" ".repeat(indent)));
+					curr.add(new ColoredString(b.toString()));
 				curr.add(part);
-				currLength = part.length();
+				currLength = indent + part.length();
 			}
 		}
 		ret.add(ColoredString.join(" ", curr));
@@ -93,11 +117,21 @@ class Printer {
 		List<ColoredString> leftLines = left.toColoredString().split('\n');
 		List<ColoredString> rightLines = right.toColoredString().split('\n');
 		
+		// Wrap left text
 		ListIterator<ColoredString> itr = leftLines.listIterator();
 		while (itr.hasNext()) {
 			ColoredString curr = itr.next();
 			itr.remove();
-			for (ColoredString cs : wrapLine(curr))
+			for (ColoredString cs : wrapLine(curr, leftWidth(), leftIndent))
+				itr.add(cs);
+		}
+		
+		// Wrap right text
+		itr = rightLines.listIterator();
+		while (itr.hasNext()) {
+			ColoredString curr = itr.next();
+			itr.remove();
+			for (ColoredString cs : wrapLine(curr, rightWidth(), rightIndent))
 				itr.add(cs);
 		}
 		int line = 0;
@@ -115,20 +149,42 @@ class Printer {
 		right = new ColoredString.Builder();
 	}
 	
-	public static void setRightAlign(int newAlign) {
+	public static void setWidth(int newWidth) {
 		if (left.length() != 0 || right.length() != 0)
 			throw new IllegalStateException("Cannot change the alignment with pending text!");
-		rightAlign = newAlign;
+		width = newWidth;
 	}
 	
-	public static void setIndent(int newIndent) {
+	public static void setIndents(int lIndent, int rIndent) {
 		if (left.length() != 0 || right.length() != 0)
 			throw new IllegalStateException("Cannot change the alignment with pending text!");
-		indent = newIndent;
+		leftIndent = lIndent;
+		rightIndent = rIndent;
+	}
+	
+	public static void setIndent(int lIndent) {
+		if (!singleCol)
+			throw new IllegalStateException("Must set both indents unless in single column mode!");
+		leftIndent = lIndent;
+	}
+	
+	public static void setSingleCol(boolean singleCol) {
+		Printer.singleCol = singleCol;
+	}
+	
+	private static int leftWidth() {
+		return singleCol ? width : width * 3 / 4;
+	}
+	
+	private static int rightWidth() {
+		assert !singleCol;
+		return width - leftWidth();
 	}
 	
 	private static ColoredString.Builder left = new ColoredString.Builder();
 	private static ColoredString.Builder right = new ColoredString.Builder();
-	private static int rightAlign = 60;
-	private static int indent = 3;
+	private static int width = 80;
+	private static int leftIndent = 3;
+	private static int rightIndent = 1;
+	private static boolean singleCol = false;
 }
