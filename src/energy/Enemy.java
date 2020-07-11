@@ -85,9 +85,7 @@ public class Enemy {
 				continue;
 			int index = (int)(Math.random() * list.size());
 			Move m = list.remove(index);
-			String text = m.execute(game);
-			text = text.substring(0, 1).toUpperCase() + text.substring(1).toLowerCase();
-			Printer.printlnLeft(Format.obj.ANSI_CYAN() + text + Format.obj.ANSI_RESET());
+			Printer.printlnLeft(m.execute(game).capitalizeFirst());
 			return;
 		}
 		// If you run out of turns, you lose
@@ -97,7 +95,7 @@ public class Enemy {
 	private Map<Integer, List<Move>> moves;
 	
 	private static interface Move {
-		String execute(Game game);
+		ColoredString execute(Game game);
 	}
 			
 	private static class Chain implements Move {
@@ -108,8 +106,8 @@ public class Enemy {
 		}
 		
 		@Override
-		public String execute(Game game) {
-			return m1.execute(game) + " and " + m2.execute(game);
+		public ColoredString execute(Game game) {
+			return m1.execute(game).append(" and ", Color.Cyan).append(m2.execute(game));
 		}
 		
 		private Move m1, m2;
@@ -121,14 +119,15 @@ public class Enemy {
 		}
 			
 		@Override
-		public String execute(Game game) {
+		public ColoredString execute(Game game) {
 			int actual = game.takeDamage(dmg);
 			if (actual == dmg) {
-				return "the enemy deals " + dmg + " damage to you";
+				return new ColoredString("the enemy deals " + dmg + " damage to you", Color.Cyan);
 			} else if (actual > 0) {
-				return "the enemy tries to deal " + dmg + " damage, but only " + actual + " gets through";
+				return new ColoredString("the enemy tries to deal " + dmg + " damage, but only " + actual
+						+ " gets through", Color.Cyan);
 			} else {
-				return "the enemy tries to deal " + dmg + " damage, but it's all blocked";
+				return new ColoredString("the enemy tries to deal " + dmg + " damage, but it's all blocked", Color.Cyan);
 			}
 		}
 		
@@ -142,14 +141,14 @@ public class Enemy {
 		}
 		
 		@Override
-		public String execute(Game game) {
+		public ColoredString execute(Game game) {
 			int actual = game.steal(type, amt);
 			if (actual > 0) {
-				return "the enemy steals " + actual + " " + EnergyType.name(type) + Format.obj.ANSI_CYAN()
-						 + " energy from you";
+				return new ColoredString("the enemy steals " + actual + " ", Color.Cyan)
+						.append(EnergyType.name(type)).append(" energy from you", Color.Cyan);
 			} else {
-				return "the enemy tries to steal " + EnergyType.name(type) + Format.obj.ANSI_CYAN()
-						+ " energy from you but fails";
+				return new ColoredString("the enemy tries to steal ", Color.Cyan).append(EnergyType.name(type))
+						.append(" energy from you but fails", Color.Cyan);
 			}
 		}
 		
@@ -163,14 +162,14 @@ public class Enemy {
 		}
 		
 		@Override
-		public String execute(Game game) {
+		public ColoredString execute(Game game) {
 			int actual = game.stealAll(type);
 			if (actual > 0) {
-				return "the enemy steals all your " + EnergyType.name(type) + Format.obj.ANSI_CYAN()
-						+ " from you";
+				return new ColoredString("the enemy steals all your ", Color.Cyan).append(EnergyType.name(type))
+						.append(" from you", Color.Cyan);
 			} else {
-				return "the enemey tries to steal all your " + EnergyType.name(type) + Format.obj.ANSI_CYAN()
-						+ " but fails";
+				return new ColoredString("the enemey tries to steal all your ", Color.Cyan)
+						.append(EnergyType.name(type)).append(" but fails", Color.Cyan);
 			}
 		}
 		
@@ -183,17 +182,17 @@ public class Enemy {
 		}
 		
 		@Override
-		public String execute(Game game) {
+		public ColoredString execute(Game game) {
 			game.buildEnemyWalls(amt);
-			return "the enemy rebuilds " + amt + " walls";
+			return new ColoredString("the enemy rebuilds " + amt + " walls", Color.Cyan);
 		}
 		private int amt;
 	}
 	
 	private static class Pass implements Move {
 		@Override
-		public String execute(Game game) {
-			return "the enemy prepares...";
+		public ColoredString execute(Game game) {
+			return new ColoredString("the enemy prepares...", Color.Cyan);
 		}
 	}
 }

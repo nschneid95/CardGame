@@ -16,14 +16,11 @@ public class EnergySpringOption implements Option {
 	}
 
 	@Override
-	public String text() {
-		return "Fortify the " + Format.obj.rainbow("energy spring") + ". 1 " +
-				EnergyType.name(EnergyType.EARTH) + ", 1 " + 
-				EnergyType.name(EnergyType.AIR) + ", 1 " +
-				EnergyType.name(EnergyType.FIRE) + ", 1 " +
-				EnergyType.name(EnergyType.WATER) + ", " +
-				cost + " " + EnergyType.name(EnergyType.RAW) +
-				" -> +" + num + " " + EnergyType.name(EnergyType.RAW) + " per day";
+	public ColoredString text() {
+		return new ColoredString("Fortify the energy spring. 1 ").append(EnergyType.earthName).append(", 1 ")
+				.append(EnergyType.airName).append(", 1 ").append(EnergyType.fireName).append(", 1 ")
+				.append(EnergyType.waterName).append(", " + cost + " ").append(EnergyType.rawName)
+				.append(" -> +" + num + " ").append(EnergyType.rawName).append(" per day");
 	}
 
 	@Override

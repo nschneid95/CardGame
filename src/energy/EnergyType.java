@@ -11,22 +11,28 @@ public enum EnergyType {
 	FIRE,
 	AIR;
 	
-	public static String name(EnergyType type) {
+	public static ColoredString name(EnergyType type) {
 		switch (type) {
 		case RAW:
-			return Format.obj.ANSI_RESET() + Format.obj.ANSI_PURPLE() + "Raw" + Format.obj.ANSI_RESET();
-		case EARTH:
-			return Format.obj.ANSI_RESET() + Format.obj.ANSI_GREEN() + "Earth" + Format.obj.ANSI_RESET();
+			return new ColoredString("Raw", Color.Purple);
 		case WATER:
-			return Format.obj.ANSI_RESET() + Format.obj.ANSI_BLUE() + "Water" + Format.obj.ANSI_RESET();
-		case AIR:
-			return Format.obj.ANSI_RESET() + Format.obj.ANSI_YELLOW() + "Air" + Format.obj.ANSI_RESET();
+			return new ColoredString("Water", Color.Blue);
+		case EARTH:
+			return new ColoredString("Earth", Color.Green);
 		case FIRE:
-			return Format.obj.ANSI_RESET() + Format.obj.ANSI_RED() + "Fire" + Format.obj.ANSI_RESET();
+			return new ColoredString("Fire", Color.Red);
+		case AIR:
+			return new ColoredString("Air", Color.Yellow);
 		default:
 			throw new RuntimeException("Unexpected energy type: " + type);
 		}
 	}
+	
+	public final static ColoredString rawName = name(RAW);
+	public final static ColoredString waterName = name(WATER);
+	public final static ColoredString earthName = name(EARTH);
+	public final static ColoredString fireName = name(FIRE);
+	public final static ColoredString airName = name(AIR);
 
 	public static class Counter {
 		public Counter() {

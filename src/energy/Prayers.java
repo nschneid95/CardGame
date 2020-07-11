@@ -5,10 +5,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 public class Prayers {
-	static Supplier<String> color = Format.obj::ANSI_BRIGHT_PURPLE;
+	static final Color color = Color.BrightPurple;
 	
 	public static List<Option> getOptions() {
 		List<Option> ret = new LinkedList<Option>();
@@ -30,11 +29,10 @@ public class Prayers {
 	private static int maxLevel = 1;
 
 	private static class NextPrayerLevel implements Option {
-		public String text() {
-			return color.get() + "Empower Spirit: " + (5 * maxLevel) + " " + Format.obj.ANSI_RESET()
-					+ EnergyType.name(EnergyType.AIR) + color.get() + ", " + maxLevel + " "
-					+ Format.obj.ANSI_RESET() + EnergyType.name(EnergyType.AIR) + color.get()
-					+ " per week -> more powerful prayers" + Format.obj.ANSI_RESET();
+		public ColoredString text() {
+			return new ColoredString("Empower Spirit", color).append(": " + (5 * maxLevel) + " ")
+					.append(EnergyType.airName).append(", " + maxLevel + " ").append(EnergyType.airName)
+					.append(" per week -> more powerful prayers");
 		}
 		
 		public boolean isAllowed(Game game) {
@@ -42,12 +40,12 @@ public class Prayers {
 		}
 		
 		public void execute(Game game) {
-			Printer.printLeft(color.get());
 			if (maxLevel == 1)
-				Printer.printLeft("The air spirit hungrily gulps down the energy. Their new powerful aura makes you feel uneasy.");
+				Printer.printLeft("The air spirit hungrily gulps down the energy. "
+						+ "Their new powerful aura makes you feel uneasy.", color);
 			else
-				Printer.printLeft("The air spirit visibly grows larger. You feel your mind beginning to crumble when in their presence.");
-			Printer.printlnLeft(Format.obj.ANSI_RESET());
+				Printer.printLeft("The air spirit visibly grows larger. "
+					+ "You feel your mind beginning to crumble when in their presence.", color);
 			game.spend(EnergyType.AIR, maxLevel * 5);
 			game.addDailyAirCost(maxLevel);
 			maxLevel++;
@@ -66,7 +64,7 @@ public class Prayers {
 		}
 		
 		@Override
-		public String text() {
+		public ColoredString text() {
 			String adj = "";
 			switch (level) {
 			case 2:
@@ -76,7 +74,7 @@ public class Prayers {
 				adj = "legendary ";
 				break;
 			}
-			return color.get() + "Request a new " + adj + "prayer" + Format.obj.ANSI_RESET();
+			return new ColoredString("Request a new " + adj + "prayer", color);
 		}
 		
 		@Override
@@ -88,11 +86,10 @@ public class Prayers {
 		public void execute(Game game) throws IllegalStateException {
 			game.spend(EnergyType.AIR, game.researchCosts.prayerCost(level));
 			Prayer p = remaining.get(level).remove((int)(Math.random() * remaining.get(level).size()));
-			Printer.printlnLeft(color.get() + p.text() + Format.obj.ANSI_RESET());
+			Printer.printlnLeft(p.text().reColor(Color.White, color));
 			if (remaining.get(maxLevel).isEmpty())
-				Printer.printlnLeft(color.get() + Format.obj.ANSI_BOLD()
-						+ "You've run out of prayers, but the spirit whispers of a forbidden ritual to strengthen themselves..."
-						+ Format.obj.ANSI_RESET());
+				Printer.printlnLeft("You've run out of prayers, but the spirit whispers of a forbidden "
+						+ "ritual to strengthen themselves...", color);
 			p.execute(game);
 		}
 		
@@ -106,7 +103,7 @@ public class Prayers {
 	
 	private interface Prayer {
 		void execute(Game game);
-		String text();
+		ColoredString text();
 	}
 	
 	private static class NextLevel implements Prayer {
@@ -119,12 +116,13 @@ public class Prayers {
 		}
 		
 		@Override
-		public String text() {
+		public ColoredString text() {
 			if (maxLevel == 1) {
-				return "Your body morphs and changes to something barely recognizable as you gain the ability to cast very powerful spells.";
+				return new ColoredString("Your body morphs and changes to something barely recognizable as you "
+						+ "gain the ability to cast very powerful spells.");
 			} else {
-				return "Your body flows like pudding and hardens into a solid crystal that can channel immense amounts of energy and"
-						+ Format.obj.ANSI_RESET() + "\n" + color.get() + "cast unthinkable spells.";
+				return new ColoredString("Your body flows like pudding and hardens into a solid crystal that "
+						+ "can channel immense amounts of energy and cast unthinkable spells.");
 			}
 		}
 	}
@@ -139,15 +137,17 @@ public class Prayers {
 		}
 		
 		@Override
-		public String text() {
+		public ColoredString text() {
 			switch (numPoints) {
 			case 0:
-				return "You gain a lifetime worth of spell theory in a single moment. You can research spells quicker.";
+				return new ColoredString("You gain a lifetime worth of spell theory in a single moment. "
+						+ "You can research spells quicker.");
 			case 1:
-				return "Your mind struggles to keep up as you gain a deeper understanding of the world than every other creature combined."
-						+ Format.obj.ANSI_RESET() + "\n" + color.get() + "Researching new seplls is easy.";
+				return new ColoredString("Your mind struggles to keep up as you gain a deeper understanding "
+						+ "of the world than every other creature combined. Researching new seplls is easy.");
 			case 2:
-				return "Your personality dissolves as the knowledge of a god overwhelms your mind. Researching complex new spells is as easy as addition.";
+				return new ColoredString("Your personality dissolves as the knowledge of a god overwhelms your "
+						+ "mind. Researching complex new spells is as easy as addition.");
 			}
 			throw new RuntimeException("Unexpected number of research points: " + numPoints);
 		}
@@ -166,10 +166,11 @@ public class Prayers {
 		}
 		
 		@Override
-		public String text() {
-			return "The mythical " + EnergyType.name(type) + color.get() + " Channel appears in your hands! "
-					+ EnergyType.name(EnergyType.RAW) + color.get() + " can now be converted to "
-					+ EnergyType.name(type) + color.get() + " more efficiently!";
+		public ColoredString text() {
+			return new ColoredString("The mythical ").append(EnergyType.name(type))
+					.append(" Channel appears in your hands! ").append(EnergyType.rawName)
+					.append(" can now be converted to ").append(EnergyType.name(type))
+					.append(" more efficiently!");
 		}
 		
 		private final EnergyType type;

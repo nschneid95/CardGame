@@ -1,7 +1,6 @@
 package energy;
 
 import java.util.Map;
-import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.ArrayList;
@@ -11,7 +10,7 @@ import java.util.List;
 
 class DefensiveSpells {
 	
-	static Supplier<String> color = Format.obj::ANSI_BRIGHT_GREEN;
+	static Color color = Color.BrightGreen;
 	
 	public static List<Option> getOptions() {
 		List<Option> ret = new LinkedList<Option>();
@@ -41,7 +40,7 @@ class DefensiveSpells {
 		}
 		
 		@Override
-		public String text() {
+		public ColoredString text() {
 			String adj = "";
 			switch (level) {
 			case 2:
@@ -51,7 +50,7 @@ class DefensiveSpells {
 				adj = "legendary ";
 				break;
 			}
-			return color.get() + "Research a new " + adj + "defensive spell" + Format.obj.ANSI_RESET();
+			return new ColoredString("Research a new " + adj + "defensive spell", color);
 		}
 		
 		@Override
@@ -64,8 +63,8 @@ class DefensiveSpells {
 			game.spend(EnergyType.WATER, game.researchCosts.spellCost(level));
 			Spell spell = unknown.get(level).remove((int)(Math.random() * unknown.get(level).size()));
 			learned.add(spell);
-			Printer.printlnLeft(Format.obj.ANSI_CYAN() + "You learned: "
-					+ spell.description());
+			Printer.printLeft("You learned: ", Color.Cyan);
+			Printer.printlnLeft(spell.description().reColor(Color.White, Color.Cyan));
 		}
 		
 		private int level;
@@ -83,8 +82,8 @@ class DefensiveSpells {
 	private static Spell moat = new SimpleDefensive("Lava Moat", "A bubbling moat of lava. There's no bridge.", new EnergyType.Counter().addEarth(2).addFire(2), 3);
 	// Level 3
 	private static Spell fireGolems = new FireGolems();
-	private static Spell matrix = new MultiSpell(color, "Defense Matrix", "Summon an efficient but temporary matrix to protect your base.",Matrix::all);
-	private static Spell energyShield = new MultiSpell(color, "Energy Shield", "Summon a shield protecting your energy deck from attack.", EnergyShield::all);
+	private static Spell matrix = new MultiSpell("Defense Matrix", color, "Summon an efficient but temporary matrix to protect your base.", Matrix::all);
+	private static Spell energyShield = new MultiSpell("Energy Shield", color, "Summon a shield protecting your energy deck from attack.", EnergyShield::all);
 
 	private static Map<Integer, List<Spell>> unknown = new HashMap<Integer, List<Spell>>(Map.of(
 			1, new ArrayList<Spell>(List.of(sandStorm, strongWalls, quickSand)),
@@ -95,15 +94,15 @@ class DefensiveSpells {
 	
 	private static class SimpleDefensive implements Spell {
 		SimpleDefensive(String name, String desc, EnergyType.Counter cost, int def) {
-			this.name = color.get() + name + Format.obj.ANSI_RESET();
-			this.desc = desc;
+			this.name = new ColoredString(name, color);
+			this.desc = new ColoredString(desc);
 			this.cost = cost.getMap();
 			this.def = def;
 		}
 		
 		@Override
-		public String text() {
-			StringBuilder str = new StringBuilder();
+		public ColoredString text() {
+			ColoredString.Builder str = new ColoredString.Builder();
 			str.append(name);
 			str.append(": ");
 			str.append(String.join(", ",
@@ -112,14 +111,14 @@ class DefensiveSpells {
 					.map(x -> x.getValue() + " " + EnergyType.name(x.getKey()))
 					.toArray(String[]::new)));
 			str.append(" -> ");
-			str.append(def);
+			str.append(def.toString());
 			str.append(" walls");
-			return str.toString();
+			return str.toColoredString();
 		}
 		
 		@Override
-		public String description() {
-			return name + ": " + desc;
+		public ColoredString description() {
+			return name.append(": ").append(desc);
 		}
 		
 		@Override
@@ -139,25 +138,25 @@ class DefensiveSpells {
 			game.buildWalls(def);
 		}
 		
-		private String name, desc;
+		private ColoredString name, desc;
 		private Map<EnergyType, Integer> cost;
-		private int def;
+		private Integer def;
 	}
 
 	private static class Golems implements Spell {
 		Golems() {}
 		
 		@Override
-		public String text() {
-			return color.get() + "Golems" + Format.obj.ANSI_RESET() + ": 1 "
-					+ EnergyType.name(EnergyType.RAW) + ", 1 " + EnergyType.name(EnergyType.WATER)
-					+ ", 1 " + EnergyType.name(EnergyType.EARTH) + " -> 2 golems";
+		public ColoredString text() {
+			return new ColoredString("Golems", color).append(": 1 ").append(EnergyType.rawName).append(", 1 ")
+					.append(EnergyType.waterName).append(", 1 ").append(EnergyType.earthName)
+					.append(" -> 2 golems");
 		}
 		
 		@Override
-		public String description() {
-			return color.get() + "Golems" + Format.obj.ANSI_RESET()
-					+ ": Humanoids sculpted out of mud that protect your base and still deal 1 damage per turn.";
+		public ColoredString description() {
+			return new ColoredString("Golems", color).append(
+					": Humanoids sculpted out of mud that protect your base and still deal 1 damage per turn.");
 		}
 		
 		@Override
@@ -178,16 +177,15 @@ class DefensiveSpells {
 		Shield() {}
 		
 		@Override
-		public String text() {
-			return color.get() + "Carbon shield" + Format.obj.ANSI_RESET() + ": 2 "
-					+ EnergyType.name(EnergyType.RAW) + ", 2 "
-					+ EnergyType.name(EnergyType.EARTH) + " -> No damage is taken today";
+		public ColoredString text() {
+			return new ColoredString("Carbon shield", color).append(": 2 ").append(EnergyType.rawName)
+					.append(", 2 ").append(EnergyType.earthName).append(" -> No damage is taken today");
 		}
 		
 		@Override
-		public String description() {
-			return color.get() + "Carbon shield" + Format.obj.ANSI_RESET()
-					+ ": A powerful shield that guards against all damage for one day.";
+		public ColoredString description() {
+			return new ColoredString("Carbon shield", color)
+					.append(": A powerful shield that guards against all damage for one day.");
 		}
 		
 		@Override
@@ -207,17 +205,16 @@ class DefensiveSpells {
 		FireGolems() {}
 		
 		@Override
-		public String text() {
-			return color.get() + "Fire Golems" + Format.obj.ANSI_RESET() + ": 2 "
-					+ EnergyType.name(EnergyType.RAW) + ", 1 " + EnergyType.name(EnergyType.WATER)
-					+ ", 1 " + EnergyType.name(EnergyType.EARTH) + ", 1 " + EnergyType.name(EnergyType.FIRE)
-					+ " -> 3 fire golems";
+		public ColoredString text() {
+			return new ColoredString("Fire Golems", color).append(": 2 ").append(EnergyType.rawName)
+					.append(", 1 ").append(EnergyType.waterName).append(", 1 ").append(EnergyType.earthName)
+					.append(", 1 ").append(EnergyType.fireName).append(" -> 3 fire golems");
 		}
 		
 		@Override
-		public String description() {
-			return color.get() + "Fire Golems" + Format.obj.ANSI_RESET()
-					+ ": Powerful golems that protect your base and still deal 2 damage per turn.";
+		public ColoredString description() {
+			return new ColoredString("Fire Golems", color)
+					.append(": Powerful golems that protect your base and still deal 2 damage per turn.");
 		}
 		
 		@Override
@@ -245,9 +242,9 @@ class DefensiveSpells {
 		}
 		
 		@Override
-		public String text() {
-			return "Defense Matrix: " + (2 * n) + " " + EnergyType.name(EnergyType.RAW)
-					+ " -> Absorb up to " + n + " damage taken today";
+		public ColoredString text() {
+			return new ColoredString("Defense Matrix", color).append(": " + (2 * n) + " ")
+					.append(EnergyType.rawName).append(" -> Absorb up to " + n + " damage taken today");
 		}
 		
 		@Override
@@ -274,11 +271,11 @@ class DefensiveSpells {
 		}
 		
 		@Override
-		public String text() {
-			return "Energy Shield: " + n + " " + EnergyType.name(EnergyType.RAW) + ", 1 "
-					+ EnergyType.name(EnergyType.WATER) + ", 1 " + EnergyType.name(EnergyType.EARTH)
-					+ ", 1 " + EnergyType.name(EnergyType.AIR) + ", 1 " + EnergyType.name(EnergyType.FIRE)
-					+ " -> your energy deck is protected for " + n + " days";
+		public ColoredString text() {
+			return new ColoredString("Energy Shield").append(": " + n + " ")
+					.append(EnergyType.rawName).append(", 1 ").append(EnergyType.waterName).append(", 1 ")
+					.append(EnergyType.earthName).append(", 1 ").append(EnergyType.airName).append(", 1 ")
+					.append(EnergyType.fireName).append(" -> your energy deck is protected for " + n + " days");
 		}
 		
 		@Override

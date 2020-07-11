@@ -15,8 +15,9 @@ public class EnergyRefinementOption implements Option {
 	}
 	
 	@Override
-	public String text() {
-		return "Refine: 2 " + EnergyType.name(EnergyType.RAW) + " -> 1 " + EnergyType.name(type);
+	public ColoredString text() {
+		return EnergyType.name(type).append(" refinement: 2 ").append(EnergyType.rawName).append(" -> 1 ")
+				.append(EnergyType.name(type));
 	}
 	
 	@Override

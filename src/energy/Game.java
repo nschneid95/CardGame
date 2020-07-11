@@ -3,6 +3,7 @@ package energy;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,8 +58,8 @@ public class Game {
 	void spend(EnergyType type, int n) throws IllegalStateException {
 		int newVal = deck.getOrDefault(type, 0) - n;
 		if (newVal < 0) {
-			throw new IllegalStateException("Cannot spend " + n + " " + EnergyType.name(type) + " cards when there are only "
-					+ deck.getOrDefault(type, 0) + " in deck.");
+			throw new IllegalStateException("Cannot spend " + n + " " + EnergyType.name(type)
+			+ " cards when there are only " + deck.getOrDefault(type, 0) + " in deck.");
 		} else {
 			deck.put(type, newVal);
 		}
@@ -143,7 +144,8 @@ public class Game {
 		numFireGolems = 0;
 		playerWalls -= amt;
 		if (playerWalls <= 0)
-			lose("The soldier drones of the government climb over the ruins of your last wall and slaughter everyone in the base.");
+			lose("The soldier drones of the government climb over the ruins of your last wall and slaughter "
+					+ "everyone in the base.");
 		return amt;
 	}
 	
@@ -162,49 +164,60 @@ public class Game {
 	void addEnergySpring() { numEnergySprings++; }
 	
 	private void printMap(Map<EnergyType, Integer> map) {
-		String s = String.join(", ",
+		ColoredString s = ColoredString.join(", ",
 			map.entrySet().stream()
 			.sorted((x, y) -> x.getKey().compareTo(y.getKey()))
 			.filter(x -> x.getValue() > 0)
-			.map(e -> e.getValue() + " " + EnergyType.name(e.getKey()))
-			.toArray(String[]::new));
+			.map(e -> new ColoredString(e.getValue() + " ").append(EnergyType.name(e.getKey())))
+			.collect(Collectors.toList()));
 		Printer.printlnLeft(s);
 	}
 	
 	private String getValByLevel(Function<Integer, Integer> func, int maxLevel) {
-		return String.join("/", List.of(1, 2, 3).stream().sorted().filter(x -> x <= maxLevel).map(func).map(x -> x.toString()).toArray(String[]::new));
+		return String.join("/", 
+				List.of(1, 2, 3).stream()
+				.sorted()
+				.filter(x -> x <= maxLevel)
+				.map(func)
+				.map(x -> x.toString())
+				.toArray(String[]::new));
 	}
 	
 	private void printInfo() {
 		Printer.printlnRight("Your walls: " + playerWalls);
 		Printer.printlnRight("Enemy walls: " + enemyWalls);
 		if (tempWalls > 0)
-			Printer.printlnRight(Format.obj.ANSI_BRIGHT_RED() + "Temporary walls: " + tempWalls + Format.obj.ANSI_RESET());
+			Printer.printlnRight("Temporary walls: " + tempWalls, Color.BrightRed);
 		if (numGolems > 0)
-			Printer.printlnRight(Format.obj.ANSI_BRIGHT_CYAN() + "Golems: " + numGolems + Format.obj.ANSI_RESET());
+			Printer.printlnRight("Golems: " + numGolems, Color.BrightCyan);
 		if (numFireGolems > 0)
-			Printer.printlnRight(Format.obj.ANSI_BRIGHT_CYAN() + "FireGolems: " + numFireGolems + Format.obj.ANSI_RESET());
+			Printer.printlnRight("FireGolems: " + numFireGolems, Color.BrightCyan);
 		int lvl = OffensiveSpells.maxLevel;
-		Printer.printlnRight("Spell cost (" + EnergyType.name(EnergyType.WATER) + "): "
-				+ getValByLevel(researchCosts::spellCost, lvl));
-		Printer.printlnRight(DefensiveSpells.color.get() + "Remaining defensive spells: "
-				+ getValByLevel(DefensiveSpells::numUnknown, lvl) + Format.obj.ANSI_RESET());
-		Printer.printlnRight(OffensiveSpells.color.get() + "Remaning offensive spells: "
-				+ getValByLevel(OffensiveSpells::numUnknown, lvl) + Format.obj.ANSI_RESET());
-		Printer.printlnRight(Prayers.color.get() + "Prayer cost(" + EnergyType.name(EnergyType.AIR)
-				+ Prayers.color.get() + "): " + researchCosts.prayerCost(Prayers.getLevel()) + Format.obj.ANSI_RESET());
-		Printer.printlnRight(Prayers.color.get() + "Remaining prayers: " + Prayers.numPrayers()
-				+ Format.obj.ANSI_RESET());
+		// Spell costs
+		Printer.printRight("Spell cost (");
+		Printer.printRight(EnergyType.waterName);
+		Printer.printRight("): ");
+		Printer.printlnRight(getValByLevel(researchCosts::spellCost, lvl));
+		// Remaining defensive
+		Printer.printRight("Remaining defensive spells: ", DefensiveSpells.color);
+		Printer.printlnRight(getValByLevel(DefensiveSpells::numUnknown, lvl), DefensiveSpells.color);
+		// Remaining offensive
+		Printer.printRight("Remaning offensive spells: ", OffensiveSpells.color);
+		Printer.printlnRight(getValByLevel(OffensiveSpells::numUnknown, lvl), OffensiveSpells.color);
+		// Prayer cost
+		Printer.printRight("Prayer cost(", Prayers.color);
+		Printer.printRight(EnergyType.airName);
+		Printer.printlnRight("): " + researchCosts.prayerCost(Prayers.getLevel()), Prayers.color);
+		// Remaining prayers
+		Printer.printlnRight("Remaining prayers: " + Prayers.numPrayers(), Prayers.color);
 		if (focused)
-			Printer.printlnRight(Format.obj.ANSI_BRIGHT_RED() + "Focused! Next attack gets 2x damage" + Format.obj.ANSI_RESET());
+			Printer.printlnRight("Focused! Next attack gets 2x damage", Color.BrightRed);
 		if (hasShield)
-			Printer.printlnRight(Format.obj.ANSI_BRIGHT_BLUE() + "Carbon Shield in place" + Format.obj.ANSI_RESET());
+			Printer.printlnRight("Carbon Shield in place", Color.BrightBlue);
 		if (mirrorShieldLifetime > 0)
-			Printer.printlnRight(Format.obj.ANSI_BRIGHT_BLUE() + "Mirror Shield acive for "
-					+ mirrorShieldLifetime + " days" + Format.obj.ANSI_RESET());
+			Printer.printlnRight("Mirror Shield acive for " + mirrorShieldLifetime + " days", Color.BrightBlue);
 		if (energyShieldLifetime > 0)
-			Printer.printlnRight(Format.obj.ANSI_BRIGHT_BLUE() + "Energy Shield active for "
-					+ energyShieldLifetime + " days" + Format.obj.ANSI_RESET());
+			Printer.printlnRight("Energy Shield active for " + energyShieldLifetime + " days", Color.BrightBlue);
 	}
 	
 	private int mapSize(Map<EnergyType, Integer> m) {
@@ -220,14 +233,14 @@ public class Game {
 		while (!done.val) {
 			if (mapSize(deck) == 0)
 				break;
-			Printer.printLeft("Your deck: ");
 			printInfo();
+			Printer.printLeft("Your deck: ");
 			printMap(deck);
 			// Get the list of all possible actions
 			List<Option> options = new ArrayList<Option>();
 			options.add(new Option() {
 				@Override
-				public String text() { return "Discard remaining cards"; }
+				public ColoredString text() { return new ColoredString("Discard remaining cards"); }
 				@Override
 				public boolean isAllowed(Game game) { return true; }
 				@Override
@@ -272,8 +285,8 @@ public class Game {
 		if (dailyAirCost > 0) {
 			if (hasAir(dailyAirCost)) {
 				spend(EnergyType.AIR, dailyAirCost);
-				Printer.printlnLeft(Prayers.color.get() + "The spirit eats " + dailyAirCost + " "
-						+ Format.obj.ANSI_RESET() + EnergyType.name(EnergyType.AIR));
+				Printer.printLeft("The spirit eats " + dailyAirCost + " ", Prayers.color);
+				Printer.printlnLeft(EnergyType.airName);
 			} else {
 				if (hadSpiritWarning) {
 					if (Prayers.getLevel() == 2)

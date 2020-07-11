@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 public class Selection {
 	public interface Choice {
-		String text();
+		ColoredString text();
 	}
 	
 	static Scanner scan = new Scanner(System.in);

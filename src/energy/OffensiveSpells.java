@@ -1,7 +1,7 @@
 package energy;
 
 import java.util.Map;
-import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -12,7 +12,7 @@ import java.util.List;
 
 public class OffensiveSpells {
 
-	static Supplier<String> color = Format.obj::ANSI_BRIGHT_YELLOW;
+	static final Color color = Color.BrightYellow;
 	
 	public static List<Option> getOptions() {
 		List<Option> ret = new LinkedList<Option>();
@@ -42,7 +42,7 @@ public class OffensiveSpells {
 		}
 		
 		@Override
-		public String text() {
+		public ColoredString text() {
 			String adj = "";
 			switch (level) {
 			case 2:
@@ -52,7 +52,7 @@ public class OffensiveSpells {
 				adj = "legendary ";
 				break;
 			}
-			return color.get() + "Research a new " + adj + "offensive spell" + Format.obj.ANSI_RESET();
+			return new ColoredString("Research a new " + adj + "offensive spell", color);
 		}
 		
 		@Override
@@ -65,8 +65,8 @@ public class OffensiveSpells {
 			game.spend(EnergyType.WATER, game.researchCosts.spellCost(level));
 			Spell spell = unknown.get(level).remove((int)(Math.random() * unknown.get(level).size()));
 			learned.add(spell);
-			Printer.printlnLeft(Format.obj.ANSI_CYAN() + "You learned: "
-					+ spell.description());
+			Printer.printLeft("You learned: ", Color.Cyan);
+			Printer.printlnLeft(spell.description().reColor(Color.White, Color.Cyan));
 		}
 		
 		private int level;
@@ -82,11 +82,11 @@ public class OffensiveSpells {
 	// Level 2
 	private static Spell focus = new Focus();
 	private static Spell meteors = new SimpleOffensive("Meteors", "Hundreds of beachball sized flaming rocks rain down on your enemies.", new EnergyType.Counter().addFire(2).addEarth(1).addAir(1), 3);
-	private static Spell earthquake = new MultiSpell(color, "Earthquake", "Shake the earth to shatter walls on both sides of the battlefield.",  Earthquake::all);
+	private static Spell earthquake = new MultiSpell("Earthquake", color, "Shake the earth to shatter walls on both sides of the battlefield.", Earthquake::all);
 	// Level 3
-	private static Spell matrix = new MultiSpell(color, "Attack Matrix", "A ledgendary spell whose damage is only limited by your available power.", Matrix::all);
+	private static Spell matrix = new MultiSpell("Attack Matrix", color, "A ledgendary spell whose damage is only limited by your available power.", Matrix::all);
 	private static Spell asteroid = new SimpleOffensive("Asteroid", "Call down an asteroid the size of a football field to crush your enemies.", new EnergyType.Counter().addFire(2).addEarth(2).addAir(1), 5);
-	private static Spell mirror = new MultiSpell(color, "Mirror Shield", "An inpenetrable shield that reflects any damage dealt to it.", Mirror::all);
+	private static Spell mirror = new MultiSpell("Mirror Shield", color, "An inpenetrable shield that reflects any damage dealt to it.", Mirror::all);
 	
 	private static Map<Integer, List<Spell>> unknown = new HashMap<Integer, List<Spell>>(Map.of(
 			1, new ArrayList<Spell>(List.of(lava, steam, superFB)),
@@ -97,31 +97,32 @@ public class OffensiveSpells {
 	
 	private static class SimpleOffensive implements Spell {
 		SimpleOffensive(String name, String desc, EnergyType.Counter cost, int dmg) {
-			this.name = color.get() + name + Format.obj.ANSI_RESET();
-			this.desc = desc;
+			this.name = new ColoredString(name, color);
+			this.desc = new ColoredString(desc, Color.Cyan);
 			this.cost = cost.getMap();
 			this.dmg = dmg;
 		}
 		
 		@Override
-		public String text() {
-			StringBuilder str = new StringBuilder();
+		public ColoredString text() {
+			ColoredString.Builder str = new ColoredString.Builder();
 			str.append(name);
 			str.append(": ");
-			str.append(String.join(", ",
+			str.append(ColoredString.join(", ",
 					cost.entrySet().stream()
 					.sorted((x, y) -> x.getKey().compareTo(y.getKey()))
-					.map(x -> x.getValue() + " " + EnergyType.name(x.getKey()))
-					.toArray(String[]::new)));
+					.map(x -> new ColoredString(x.getValue() + " ").append(EnergyType.name(x.getKey())))
+					.collect(Collectors.toList())));
+			
 			str.append(" -> ");
-			str.append(dmg);
+			str.append(((Integer)dmg).toString());
 			str.append(" damage");
-			return str.toString();
+			return str.toColoredString();
 		}
 		
 		@Override
-		public String description() {
-			return name + ": " + desc;
+		public ColoredString description() {
+			return name.append(": ").append(desc);
 		}
 		
 		@Override
@@ -141,7 +142,7 @@ public class OffensiveSpells {
 			game.dealDamage(dmg);
 		}
 		
-		private String name, desc;
+		private ColoredString name, desc;
 		private Map<EnergyType, Integer> cost;
 		private int dmg;
 	}
@@ -150,16 +151,15 @@ public class OffensiveSpells {
 		Focus() {}
 		
 		@Override
-		public String text() {
-			return color.get() + "Focus" + Format.obj.ANSI_RESET() + ": 3 "
-					+ EnergyType.name(EnergyType.RAW) + ", 2 " + EnergyType.name(EnergyType.EARTH)
-					+ " -> 2x damage next attack";
+		public ColoredString text() {
+			return new ColoredString("Focus", color).append(": 3 ").append(EnergyType.rawName).append(", 2 ")
+					.append(EnergyType.earthName).append(" -> 2x damage next attack");
 		}
 		
 		@Override
-		public String description() {
-			return color.get() + "Focus" + Format.obj.ANSI_RESET()
-					+ ": Use grounding magic to remove distractions and double the damage of your next attack.";
+		public ColoredString description() {
+			return new ColoredString("Focus", color)
+					.append(": Use grounding magic to remove distractions and double the damage of your next attack.");
 		}
 		
 		@Override
@@ -185,9 +185,10 @@ public class OffensiveSpells {
 		}
 		
 		@Override
-		public String text() {
-			return "Earthquake: " + n + " " + EnergyType.name(EnergyType.RAW) + ", 1 "
-					+ EnergyType.name(EnergyType.EARTH) + " -> " + n + " damage to yourself and enemy";
+		public ColoredString text() {
+			return new ColoredString("Earthquake", color).append(": " + n + " ").append(EnergyType.rawName)
+					.append(", 1 ").append(EnergyType.earthName)
+					.append(" -> " + n + " damage to yourself and enemy");
 		}
 		
 		@Override
@@ -216,9 +217,9 @@ public class OffensiveSpells {
 		}
 		
 		@Override
-		public String text() {
-			return "Attack matrix: " + (2 * n) + " " + EnergyType.name(EnergyType.RAW)
-				+ " -> " + n + " damage";
+		public ColoredString text() {
+			return new ColoredString("Attack matrix", color).append(": " + (2 * n) + " ")
+					.append(EnergyType.rawName).append(" -> " + n + " damage");
 		}
 		
 		@Override
@@ -245,11 +246,11 @@ public class OffensiveSpells {
 		}
 		
 		@Override
-		public String text() {
-			return "Mirror shield: " + n + " " + EnergyType.name(EnergyType.RAW) + ", 1 "
-					+ EnergyType.name(EnergyType.WATER) + ", 1 " + EnergyType.name(EnergyType.EARTH)
-					+ ", 1 " + EnergyType.name(EnergyType.AIR) + ", 1 " + EnergyType.name(EnergyType.FIRE)
-					+ " -> reflect all damage for " + n + " days";
+		public ColoredString text() {
+			return new ColoredString("Mirror shield", color).append(": " + n + " ").append(EnergyType.rawName)
+					.append(", 1 ").append(EnergyType.waterName).append(", 1 ").append(EnergyType.earthName)
+					.append(", 1 ").append(EnergyType.airName).append(", 1 ").append(EnergyType.fireName)
+					.append(" -> reflect all damage for " + n + " days");
 		}
 		
 		@Override

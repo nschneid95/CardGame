@@ -20,8 +20,9 @@ public class EnergyChannelOption implements Option {
 	}
 	
 	@Override
-	public String text() {
-		return EnergyType.name(type) + " Channel: 3 " + EnergyType.name(EnergyType.RAW) + " -> 2 " + EnergyType.name(type);
+	public ColoredString text() {
+		return EnergyType.name(type).append(" Channel: 3 ").append(EnergyType.rawName).append(" -> 2 ")
+				.append(EnergyType.name(type));
 	}
 	
 	@Override

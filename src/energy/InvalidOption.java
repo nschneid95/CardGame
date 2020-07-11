@@ -6,8 +6,8 @@ public class InvalidOption implements Option {
 	private InvalidOption() {}
 
 	@Override
-	public String text() {
-		return "Invalid option";
+	public ColoredString text() {
+		return new ColoredString("Invalid option");
 	}
 
 	@Override

@@ -5,20 +5,28 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 class MultiSpell implements Spell {
-	MultiSpell(Supplier<String> color, String name, String desc, Supplier<Stream<Option>> options) {
-		this.name = color.get() + name + Format.obj.ANSI_RESET();
+	MultiSpell(ColoredString name, ColoredString desc, Supplier<Stream<Option>> options) {
+		this.name = name;
 		this.desc = desc;
 		this.options = options;
 	}
+	
+	MultiSpell(String name, Color nameColor, ColoredString desc, Supplier<Stream<Option>> options) {
+		this(new ColoredString(name, nameColor), desc, options);
+	}
+	
+	MultiSpell(String name, Color nameColor, String desc, Supplier<Stream<Option>> options) {
+		this(new ColoredString(name, nameColor), new ColoredString(desc), options);
+	}
 
 	@Override
-	public String text() {
+	public ColoredString text() {
 		return name;
 	}
 	
 	@Override
-	public String description() {
-		return name + ": " + desc;
+	public ColoredString description() {
+		return name.append(new ColoredString(": ")).append(desc);
 	}
 
 	@Override
@@ -34,6 +42,6 @@ class MultiSpell implements Spell {
 		filteredOptions[i].execute(game);
 	}
 
-	private String name, desc;
+	private ColoredString name, desc;
 	private Supplier<Stream<Option>> options;
 }
