@@ -8,10 +8,12 @@ public class Main {
 	private static Scanner scan = new Scanner(System.in);
 	
 	private static boolean chooseYesNo(ColoredString prompt) {
-		System.out.println(prompt.toString());
+		Printer.printlnLeft(prompt);
+		Printer.flush();
 		String input = scan.nextLine().toLowerCase();
 		while (!"yes".equals(input) && !"no".equals(input) && !"y".equals(input) && !"n".equals(input)) {
-			System.out.println("Please type either Y or N.");
+			Printer.printlnLeft("Please type either Y or N.");
+			Printer.flush();
 			input = scan.nextLine().toLowerCase();
 		}
 		switch (input) {
@@ -46,12 +48,10 @@ public class Main {
 	}
 
 	public static void main(String[] args) {
-		// Enable or disable colors
-		ColoredString.enableColors = true;
-		ColoredString.enableColors = chooseYesNo(new ColoredString(
-				"Enable colors (Y/N)? (Type Y if this text looks green and you want to see colors)",
-				Color.Green));
-		
+		// Don't try to wrap text until we determine a size. For now let the console wrap for us.
+		Printer.setSingleCol(true);
+		Printer.setWidth(800);
+		Printer.setIndent(0);
 		// Choose width
 		int width = 80;
 		Optional<Integer> maybeWidth = chooseInt(
@@ -79,10 +79,14 @@ public class Main {
 			System.out.println("Chosen width: " + width);
 		}
 		Printer.setWidth(width);
+		
+		// Enable or disable colors
+		ColoredString.enableColors = true;
+		ColoredString.enableColors = chooseYesNo(new ColoredString(
+				"Enable colors (Y/N)? (Type Y if this text looks green and you want to see colors)",
+				Color.Green));
 
 		// Introduction
-		Printer.setSingleCol(true);
-		Printer.setIndent(0);
 		if (width > 71) {
 			Printer.printlnLeft("   ______                               _____            _             ");
 			Printer.printlnLeft("  |  ____|                             / ____|          (_)            ");
@@ -92,10 +96,11 @@ public class Main {
 			Printer.printlnLeft("  |______|_| |_|\\___|_|  \\__, |\\__, | |_____/| .__/|_|  |_|_| |_|\\__, |");
 			Printer.printlnLeft("                          __/ | __/ |        | |                  __/ |");
 			Printer.printlnLeft("                         |___/ |___/         |_|                 |___/ ");
-			Printer.printlnLeft("");
 		} else {
+			Printer.printlnLeft("");
 			Printer.printlnLeft("Energy Spring", Color.BrightWhite);
 		}
+		Printer.printlnLeft("");
 		Printer.printlnLeft(
 				"You live in a world where magic and spirits are commonplace. " +
 				"The galactic government has descended into complete capitalism and authoritarianism: " +

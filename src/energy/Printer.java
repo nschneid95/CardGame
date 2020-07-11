@@ -137,13 +137,13 @@ class Printer {
 		int line = 0;
 		for (; line < leftLines.size(); line++) {
 			if (line < rightLines.size()) {
-				System.out.println(join(leftLines.get(line), rightLines.get(line)));
+				System.out.println(join(leftLines.get(line), rightLines.get(line)).consolidate());
 			} else {
-				System.out.println(leftLines.get(line));
+				System.out.println(leftLines.get(line).consolidate());
 			}
 		}
 		for (; line < rightLines.size(); line++) {
-			System.out.println(pad(rightLines.get(line)));
+			System.out.println(pad(rightLines.get(line)).consolidate());
 		}
 		left = new ColoredString.Builder();
 		right = new ColoredString.Builder();

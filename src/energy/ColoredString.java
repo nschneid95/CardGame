@@ -8,6 +8,28 @@ import java.util.function.Function;
 class ColoredString {
 	public static boolean enableColors = true;
 	
+	// Groups same colored pieces together. This will only be visible with colors
+	// enabled on a console that doesn't support them.
+	ColoredString consolidate() {
+		if (pieces.size() < 2)
+			return this;
+		List<Piece> list = new LinkedList<Piece>();
+		Color currColor = pieces.get(0).c;
+		StringBuilder currStr = new StringBuilder();
+		for (Piece p : pieces) {
+			if (p.s.trim().length() == 0 || currColor == p.c)
+				currStr.append(p.s);
+			else {
+				list.add(new Piece(currStr.toString(), currColor));
+				currStr = new StringBuilder();
+				currStr.append(p.s);
+				currColor = p.c;
+			}
+		}
+		list.add(new Piece(currStr.toString(), currColor));
+		return new ColoredString(list);
+	}
+	
 	static ColoredString join(ColoredString delimiter, Iterable<ColoredString> list) {
 		List<Piece> pieces = new LinkedList<Piece>();
 		boolean first = true;
@@ -81,8 +103,12 @@ class ColoredString {
 		for (Piece p : pieces) {
 			for (int cp : p.s.codePoints().toArray()) {
 				if (cp == ch) {
-					currList.add(new Piece(currStr.toString(), currStrColor));
-					ret.add(new ColoredString(currList));
+					if (currStr.length() > 0)
+						currList.add(new Piece(currStr.toString(), currStrColor));
+					else // Add an empty string to represent multiple delimiters
+						currList.add(new Piece("", Color.Default));
+					if (currList.size() > 0)
+						ret.add(new ColoredString(currList));
 					currList = new LinkedList<Piece>();
 					currStr = new StringBuilder();
 				} else {
