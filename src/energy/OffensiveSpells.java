@@ -66,7 +66,7 @@ public class OffensiveSpells {
 			Spell spell = unknown.get(level).remove((int)(Math.random() * unknown.get(level).size()));
 			learned.add(spell);
 			Printer.printLeft("You learned: ", Color.Cyan);
-			Printer.printlnLeft(spell.description().reColor(Color.White, Color.Cyan));
+			Printer.printlnLeft(spell.description().reColor(Color.Default, Color.Cyan));
 		}
 		
 		private int level;

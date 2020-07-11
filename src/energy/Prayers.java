@@ -86,7 +86,7 @@ public class Prayers {
 		public void execute(Game game) throws IllegalStateException {
 			game.spend(EnergyType.AIR, game.researchCosts.prayerCost(level));
 			Prayer p = remaining.get(level).remove((int)(Math.random() * remaining.get(level).size()));
-			Printer.printlnLeft(p.text().reColor(Color.White, color));
+			Printer.printlnLeft(p.text().reColor(Color.Default, color));
 			if (remaining.get(maxLevel).isEmpty())
 				Printer.printlnLeft("You've run out of prayers, but the spirit whispers of a forbidden "
 						+ "ritual to strengthen themselves...", color);

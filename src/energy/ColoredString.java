@@ -29,7 +29,7 @@ class ColoredString {
 	}
 	
 	ColoredString(String s) {
-		pieces = List.of(new Piece(s, Color.White));
+		pieces = List.of(new Piece(s, Color.Default));
 	}
 	
 	private ColoredString(List<Piece> pieces) {
@@ -183,7 +183,8 @@ class ColoredString {
 				Map.entry(Color.BrightBlue, "\u001B[34;1m"),
 				Map.entry(Color.BrightPurple, "\u001B[35;1m"),
 				Map.entry(Color.BrightCyan, "\u001B[36;1m"),
-				Map.entry(Color.BrightWhite, "\u001B[37;1m"));
+				Map.entry(Color.BrightWhite, "\u001B[37;1m"),
+				Map.entry(Color.Default, ""));
 	}
 }
 
@@ -203,5 +204,6 @@ enum Color {
 	BrightBlue,
 	BrightPurple,
 	BrightCyan,
-	BrightWhite
+	BrightWhite,
+	Default;
 }
