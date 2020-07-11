@@ -1,39 +1,102 @@
 package energy;
 
+import java.util.Optional;
 import java.util.Scanner;
 
 public class Main {
-
-	public static void main(String[] args) {
-		// Enable or disable colors
-		ColoredString.enableColors = true;
-		System.out.println(new ColoredString(
-				"Enable colors (Y/N)? (Type Y if this text looks green and you want to see colors)", Color.Green)
-				.toString());
-		Scanner scan = new Scanner(System.in);
+	
+	private static Scanner scan = new Scanner(System.in);
+	
+	private static boolean chooseYesNo(ColoredString prompt) {
+		System.out.println(prompt.toString());
 		String input = scan.nextLine().toLowerCase();
 		while (!"yes".equals(input) && !"no".equals(input) && !"y".equals(input) && !"n".equals(input)) {
 			System.out.println("Please type either Y or N.");
 			input = scan.nextLine().toLowerCase();
 		}
-		if ("no".equals(input) || "n".equals(input))
-			ColoredString.enableColors = false;
-		
-		int width = 80;
-		if (width > 71) {
-			System.out.println("   ______                               _____            _             ");
-			System.out.println("  |  ____|                             / ____|          (_)            ");
-			System.out.println("  | |__   _ __   ___ _ __ __ _ _   _  | (___  _ __  _ __ _ _ __   __ _ ");
-			System.out.println("  |  __| | '_ \\ / _ \\ '__/ _` | | | |  \\___ \\| '_ \\| '__| | '_ \\ / _` |");
-			System.out.println("  | |____| | | |  __/ | | (_| | |_| |  ____) | |_) | |  | | | | | (_| |");
-			System.out.println("  |______|_| |_|\\___|_|  \\__, |\\__, | |_____/| .__/|_|  |_|_| |_|\\__, |");
-			System.out.println("                          __/ | __/ |        | |                  __/ |");
-			System.out.println("                         |___/ |___/         |_|                 |___/ ");
-			System.out.println();
+		switch (input) {
+		case "yes":
+		case "y":
+			return true;
+		case "no":
+		case "n":
+			return false;
+		default:
+			throw new RuntimeException("Corruption? " + input);
 		}
+	}
+	
+	private static boolean chooseYesNo(String prompt) {
+		return chooseYesNo(new ColoredString(prompt));
+	}
+	
+	private static Optional<Integer> chooseInt(String prompt, String error) {
+		if (prompt != null && prompt.length() > 0)
+			System.out.println(prompt);
+		while (true) {
+			String input = scan.nextLine();
+			if ("".equals(input))
+				return Optional.empty();
+			try {
+				return Optional.of(Integer.parseInt(input));
+			} catch(NumberFormatException e) {
+				System.out.println(error);
+			}
+		}
+	}
+
+	public static void main(String[] args) {
+		// Enable or disable colors
+		ColoredString.enableColors = true;
+		ColoredString.enableColors = chooseYesNo(new ColoredString(
+				"Enable colors (Y/N)? (Type Y if this text looks green and you want to see colors)",
+				Color.Green));
+		
+		// Choose width
+		int width = 80;
+		Optional<Integer> maybeWidth = chooseInt(
+				"If you already know your window width, enter it here. Otherwise click return",
+				"Please enter a number or an empty line.");
+		if (maybeWidth.isPresent()) {
+			width = maybeWidth.get();
+		} else {
+			// Let the user figure out the width
+			int lower = 0;
+			int upper = -1;
+			while (width != lower) {
+				System.out.println("=".repeat(width));
+				if (chooseYesNo("Does the above bar fit on one line (Y/N)?")) {
+					lower = width;
+					if (upper > 0)
+						width = (upper + width) / 2;
+					else
+						width *= 2;
+				} else {
+					upper = width;
+					width = (lower + width) / 2;
+				}
+			}
+			System.out.println("Chosen width: " + width);
+		}
+		
+		
 		// Single column mode
 		Printer.setRightAlign(width);
 		Printer.setIndent(0);
+		
+		if (width > 71) {
+			Printer.printlnLeft("   ______                               _____            _             ");
+			Printer.printlnLeft("  |  ____|                             / ____|          (_)            ");
+			Printer.printlnLeft("  | |__   _ __   ___ _ __ __ _ _   _  | (___  _ __  _ __ _ _ __   __ _ ");
+			Printer.printlnLeft("  |  __| | '_ \\ / _ \\ '__/ _` | | | |  \\___ \\| '_ \\| '__| | '_ \\ / _` |");
+			Printer.printlnLeft("  | |____| | | |  __/ | | (_| | |_| |  ____) | |_) | |  | | | | | (_| |");
+			Printer.printlnLeft("  |______|_| |_|\\___|_|  \\__, |\\__, | |_____/| .__/|_|  |_|_| |_|\\__, |");
+			Printer.printlnLeft("                          __/ | __/ |        | |                  __/ |");
+			Printer.printlnLeft("                         |___/ |___/         |_|                 |___/ ");
+			Printer.printlnLeft("");
+		} else {
+			Printer.printlnLeft("Energy Spring");
+		}
 		Printer.printlnLeft(
 				"You live in a world where magic and spirits are commonplace. " +
 				"The galactic government has descended into complete capitalism and authoritarianism: " +
@@ -89,23 +152,17 @@ public class Main {
 		Printer.setIndent(3);
 		
 		System.out.println("Please enter a difficulty ranging from 1 (easiest) to 10 (hardest):");
-		int difficulty = -1;
+		Optional<Integer> difficulty = Optional.empty();
 		boolean first = true;
-		while (difficulty < 1 || difficulty > 10) {
+		while (difficulty.isEmpty() || difficulty.get() < 1 || difficulty.get() > 10) {
 			if (!first)
 				System.out.println("Please enter a number between 1 and 10");
-			input = scan.nextLine();
-			try {
-				difficulty = Integer.parseInt(input);
-			} catch(NumberFormatException e) { }
+			difficulty = chooseInt("", "Please enter a number between 1 and 10");
 			first = false;
 		}
 		
-		Game game = new Game(difficulty);
+		Game game = new Game(difficulty.get());
 		game.play();
-		// Note that this is just for the compiler - game.play will kill the JVM when it's done running.
-		// We can't call close earlier since that will close System.in.
-		scan.close();
 	}
 
 }
