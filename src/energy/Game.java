@@ -191,7 +191,7 @@ public class Game {
 		if (numGolems > 0)
 			Printer.printlnRight("Golems: " + numGolems, Color.BrightCyan);
 		if (numFireGolems > 0)
-			Printer.printlnRight("FireGolems: " + numFireGolems, Color.BrightCyan);
+			Printer.printlnRight("Fire Golems: " + numFireGolems, Color.BrightCyan);
 		int lvl = OffensiveSpells.maxLevel;
 		// Spell costs
 		Printer.printRight("Spell cost (");

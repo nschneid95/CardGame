@@ -78,9 +78,9 @@ class ColoredString {
 			return this;
 		List<Piece> list = new LinkedList<Piece>();
 		Piece first = pieces.get(0);
-		list.add(new Piece(first.s.substring(0, 1).toUpperCase() + first.s.substring(1).toLowerCase(), first.c));
+		list.add(new Piece(first.s.substring(0, 1).toUpperCase() + first.s.substring(1), first.c));
 		for (int i = 1; i < pieces.size(); i++)
-			list.add(new Piece(pieces.get(i).s.toLowerCase(), pieces.get(i).c));
+			list.add(pieces.get(i));
 		return new ColoredString(list);
 	}
 	
