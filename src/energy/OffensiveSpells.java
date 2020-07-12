@@ -140,6 +140,7 @@ public class OffensiveSpells {
 				game.spend(entry.getKey(), entry.getValue());
 			}
 			game.dealDamage(dmg);
+			Printer.printlnLeft("You deal " + dmg + " damage!", Color.BrightWhite);
 		}
 		
 		private ColoredString name, desc;
@@ -202,6 +203,8 @@ public class OffensiveSpells {
 			game.spend(EnergyType.RAW, n);
 			game.takeDamage(n);
 			game.dealDamage(n);
+			Printer.printlnLeft("You deal " + n + " damage!", Color.BrightWhite);
+			Printer.printlnLeft("You take " + n + " damage.", Color.BrightWhite);
 		}
 		
 		private final int n;
@@ -231,6 +234,7 @@ public class OffensiveSpells {
 		public void execute(Game game) throws IllegalStateException {
 			game.spend(EnergyType.RAW, 2 * n);
 			game.dealDamage(n);
+			Printer.printlnLeft("You deal " + n + " damage!", Color.BrightWhite);
 		}
 		
 		private final int n;

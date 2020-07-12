@@ -120,6 +120,7 @@ public class Game {
 		if (hasShield)
 			return 0;
 		if (mirrorShieldLifetime > 0) {
+			Printer.printlnLeft("Your mirror shield reflects " + amt + " damage!", Color.BrightWhite);
 			enemyWalls -= amt;
 			if (enemyWalls <= 0)
 				win();
@@ -291,12 +292,16 @@ public class Game {
 			} else {
 				if (hadSpiritWarning) {
 					if (Prayers.getLevel() == 2)
-						lose("\"You missed your payment.\" whispers the spirit. They snap their fingers and all the air on the planet dissapears with them. Everyone is dead in minutes.");
+						lose("\"You missed your payment.\" whispers the spirit. They snap their fingers and all the air on the "
+								+ "planet dissapears with them. Everyone is dead in minutes.");
 					else
-						lose("\"You missed your payment!\" screams the spirit as reality warps and splinters around them. In a fit of anger they tear through the barrier between the two planes,\n"
-								+ "causing the spirit plane and the physical plane to collide. The Raw energy created explodes outwards destroying everything it touches until all reality is destroyed.");
+						lose("\"You missed your payment!\" screams the spirit as reality warps and splinters around them. "
+								+ "In a fit of anger they tear through the barrier between the two planes, causing the spirit "
+								+ "plane and the physical plane to collide. The Raw energy created explodes outwards destroying "
+								+ "everything it touches until all reality is destroyed.");
 				} else {
-					Printer.printlnLeft("You missed your daily air payment. The spirit has a brief talk with you that leaves you quivering...");
+					Printer.printlnLeft("You missed your daily air payment. The spirit has a brief talk with you that leaves you "
+							+ "quivering...");
 					hadSpiritWarning = true;
 				}
 			}
@@ -309,7 +314,11 @@ public class Game {
 		
 		// 2: Handle golem damage
 		enemyWalls -= numGolems;
+		if (numGolems > 0)
+			Printer.printlnLeft("Your golems deal " + numGolems + " damage!", Color.BrightWhite);
 		enemyWalls -= 2 * numFireGolems;
+		if (numFireGolems > 0)
+			Printer.printlnLeft("Your fire golems deal " + 2 * numFireGolems + " damage!", Color.BrightWhite);
 		if (enemyWalls <= 0)
 			win();
 		
