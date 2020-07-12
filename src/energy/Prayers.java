@@ -41,10 +41,10 @@ public class Prayers {
 		
 		public void execute(Game game) {
 			if (maxLevel == 1)
-				Printer.printLeft("The air spirit hungrily gulps down the energy. "
+				Printer.printlnLeft("The air spirit hungrily gulps down the energy. "
 						+ "Their new powerful aura makes you feel uneasy.", color);
 			else
-				Printer.printLeft("The air spirit visibly grows larger. "
+				Printer.printlnLeft("The air spirit visibly grows larger. "
 					+ "You feel your mind beginning to crumble when in their presence.", color);
 			game.spend(EnergyType.AIR, maxLevel * 5);
 			game.addDailyAirCost(maxLevel);

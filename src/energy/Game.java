@@ -334,6 +334,8 @@ public class Game {
 			mirrorShieldLifetime--;
 		if (energyShieldLifetime > 0)
 			energyShieldLifetime--;
+		
+		Printer.flush();
 	}
 	
 	// Note: this function never returns; instead it ends the program once it finishes
