@@ -184,6 +184,7 @@ public class Game {
 	}
 	
 	private void printInfo() {
+		Printer.printlnRight("Energy spring output: " + (baseEnergy + numEnergySprings * (numEnergySprings + 1) / 2));
 		Printer.printlnRight("Your walls: " + playerWalls);
 		Printer.printlnRight("Enemy walls: " + enemyWalls);
 		if (tempWalls > 0)
