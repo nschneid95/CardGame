@@ -61,15 +61,8 @@ class Printer {
 		printRight(new ColoredString(s, c));
 	}
 	
-	public static void printBanner(String s) {
-		if (left.length() > 0 || right.length() > 0)
-			throw new IllegalStateException("Cannot print a banner with pending text!");
-		int padding = (width - s.length() - 2) / 2;
-		System.out.print("=".repeat(padding));
-		System.out.print(" ");
-		System.out.print(s);
-		System.out.print(" ");
-		System.out.println("=".repeat(padding));
+	public static int getWidth() {
+		return width;
 	}
 	
 	private static ColoredString join(ColoredString l, ColoredString r) {

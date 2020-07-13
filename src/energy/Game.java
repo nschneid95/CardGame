@@ -164,6 +164,28 @@ public class Game {
 	void focus() { focused = true; }
 	void addEnergySpring() { numEnergySprings++; }
 	
+	private void printWeekBanner() {
+		int width = Printer.getWidth();
+		String text = " WEEK " + turnNum;
+		int padding = (width - text.length()) / 2;
+		int gameLength = enemy.numTurns();
+		for (int i = 0; i < padding; i++) {
+			if (i * gameLength < width * turnNum)
+				Printer.printLeft("=");
+			else
+				Printer.printLeft(" ");
+		}
+		Printer.printLeft(text);
+		int offset = padding + text.length();
+		for (int i = 0; i < padding; i++) {
+			if ((i + offset) * gameLength < width * turnNum)
+				Printer.printLeft("=");
+			else
+				Printer.printLeft(" ");
+		}
+		Printer.printlnLeft("");
+	}
+	
 	private void printMap(Map<EnergyType, Integer> map) {
 		ColoredString s = ColoredString.join(", ",
 			map.entrySet().stream()
@@ -282,7 +304,7 @@ public class Game {
 	}
 
 	private void playDay() {
-		Printer.printBanner("WEEK " + turnNum);
+		printWeekBanner();
 		// 0: Daily air cost
 		if (dailyAirCost > 0) {
 			if (hasAir(dailyAirCost)) {

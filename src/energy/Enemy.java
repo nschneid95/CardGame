@@ -92,6 +92,10 @@ public class Enemy {
 		game.lose("You wake up to see the entire galactic fleet outside your window for a second before your entire base is vaporized.");
 	}
 	
+	public int numTurns() {
+		return moves.values().stream().mapToInt(List::size).sum();
+	}
+	
 	private Map<Integer, List<Move>> moves;
 	
 	private static interface Move {
