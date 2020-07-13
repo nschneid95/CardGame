@@ -31,7 +31,7 @@ public class Prayers {
 	private static class NextPrayerLevel implements Option {
 		public ColoredString text() {
 			return new ColoredString("Empower Spirit", color).append(": " + (5 * maxLevel) + " ")
-					.append(EnergyType.airName).append(", " + maxLevel + " ").append(EnergyType.airName)
+					.append(EnergyType.airName).append(", 1 ").append(EnergyType.airName)
 					.append(" per week -> more powerful prayers");
 		}
 		
@@ -47,7 +47,7 @@ public class Prayers {
 				Printer.printlnLeft("The air spirit visibly grows larger. "
 					+ "You feel your mind beginning to crumble when in their presence.", color);
 			game.spend(EnergyType.AIR, maxLevel * 5);
-			game.addDailyAirCost(maxLevel);
+			game.addDailyAirCost(1);
 			maxLevel++;
 			
 		}
