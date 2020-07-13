@@ -79,17 +79,17 @@ class DefensiveSpells {
 	private static Spell quickSand = new SimpleDefensive("Quicksand", "An invisible pool that drowns creatures in minutes.", new EnergyType.Counter().addEarth(2).addWater(1), 2);
 	// Level 2
 	private static Spell golems = new Golems();
-	private static Spell shield = new Shield();
+	private static Spell matrix = new MultiSpell("Defense Matrix", color, "Summon an efficient but temporary matrix to protect your base.", Matrix::all);
 	private static Spell moat = new SimpleDefensive("Lava Moat", "A bubbling moat of lava. There's no bridge.", new EnergyType.Counter().addEarth(2).addFire(2), 3);
 	// Level 3
 	private static Spell fireGolems = new FireGolems();
-	private static Spell matrix = new MultiSpell("Defense Matrix", color, "Summon an efficient but temporary matrix to protect your base.", Matrix::all);
+	private static Spell shield = new Shield();
 	private static Spell energyShield = new MultiSpell("Energy Shield", color, "Summon a shield protecting your energy deck from attack.", EnergyShield::all);
 
 	private static Map<Integer, List<Spell>> unknown = new HashMap<Integer, List<Spell>>(Map.of(
 			1, new ArrayList<Spell>(List.of(sandStorm, strongWalls, quickSand)),
-			2, new ArrayList<Spell>(List.of(golems, shield, moat)),
-			3, new ArrayList<Spell>(List.of(fireGolems, matrix, energyShield))));
+			2, new ArrayList<Spell>(List.of(golems, matrix, moat)),
+			3, new ArrayList<Spell>(List.of(fireGolems, shield, energyShield))));
 	private static List<Spell> learned = new LinkedList<Spell>(List.of(walls));
 	static int maxLevel = 1;
 	

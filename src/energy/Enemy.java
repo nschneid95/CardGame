@@ -75,7 +75,7 @@ public class Enemy {
 		list.add(new Chain(new StealAll(EnergyType.AIR), new StealAll(EnergyType.WATER)));
 		list.add(new Chain(new StealAll(EnergyType.FIRE), new StealAll(EnergyType.EARTH)));
 		list.replaceAll(x -> new Chain(x, new Heal(8)));
-		moves.put(7, list);
+		moves.put(8, list);
 	}
 	
 	public void execute(Game game) {
