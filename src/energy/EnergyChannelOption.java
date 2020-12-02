@@ -2,6 +2,8 @@ package energy;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Arrays;
+import java.util.HashMap;
 
 public class EnergyChannelOption implements Option {
 	public static EnergyChannelOption fire = new EnergyChannelOption(EnergyType.FIRE);
@@ -9,10 +11,15 @@ public class EnergyChannelOption implements Option {
 	public static EnergyChannelOption earth = new EnergyChannelOption(EnergyType.EARTH);
 	public static EnergyChannelOption air = new EnergyChannelOption(EnergyType.AIR);
 	
-	public static List<EnergyChannelOption> all = List.of(water, earth, fire, air);
+	public static List<EnergyChannelOption> all = Arrays.asList(water, earth, fire, air);
 	
-	public static Map<EnergyType, EnergyChannelOption> typeToOption = Map.of(
-			EnergyType.FIRE, fire, EnergyType.WATER, water, EnergyType.AIR, air, EnergyType.EARTH, earth);
+	public static Map<EnergyType, EnergyChannelOption> typeToOption = new HashMap<EnergyType, EnergyChannelOption>();
+	static {
+		typeToOption.put(EnergyType.FIRE, fire);
+		typeToOption.put(EnergyType.WATER, water);
+		typeToOption.put(EnergyType.AIR, air);
+		typeToOption.put(EnergyType.EARTH, earth);
+	}
 	
 	private EnergyChannelOption(EnergyType type) {
 		this.type = type;

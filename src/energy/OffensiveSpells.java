@@ -5,7 +5,9 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,7 +30,7 @@ public class OffensiveSpells {
 	}
 	
 	public static int numUnknown(int lvl) {
-		return unknown.getOrDefault(lvl, List.of()).size();
+		return unknown.getOrDefault(lvl, Collections.emptyList()).size();
 	}
 	
 	private static class Research implements Option {
@@ -88,11 +90,13 @@ public class OffensiveSpells {
 	private static Spell asteroid = new SimpleOffensive("Asteroid", "Call down an asteroid the size of a football field to crush your enemies.", new EnergyType.Counter().addFire(2).addEarth(2).addAir(1), 5);
 	private static Spell mirror = new MultiSpell("Mirror Shield", color, "An inpenetrable shield that reflects any damage dealt to it.", Mirror::all);
 	
-	private static Map<Integer, List<Spell>> unknown = new HashMap<Integer, List<Spell>>(Map.of(
-			1, new ArrayList<Spell>(List.of(lava, steam, superFB)),
-			2, new ArrayList<Spell>(List.of(focus, meteors, earthquake)),
-			3, new ArrayList<Spell>(List.of(matrix, asteroid, mirror))));
-	private static List<Spell> learned = new LinkedList<Spell>(List.of(fireball));
+	private static Map<Integer, List<Spell>> unknown = new HashMap<Integer, List<Spell>>();
+	static {
+		unknown.put(1, new ArrayList<Spell>(Arrays.asList(lava, steam, superFB)));
+		unknown.put(2, new ArrayList<Spell>(Arrays.asList(focus, meteors, earthquake)));
+		unknown.put(3, new ArrayList<Spell>(Arrays.asList(matrix, asteroid, mirror)));
+	}
+	private static List<Spell> learned = new LinkedList<Spell>(Arrays.asList(fireball));
 	static int maxLevel = 1;
 	
 	private static class SimpleOffensive implements Spell {

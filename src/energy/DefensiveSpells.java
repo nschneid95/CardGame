@@ -5,6 +5,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,7 +29,7 @@ class DefensiveSpells {
 	}
 	
 	public static int numUnknown(int lvl) {
-		return unknown.getOrDefault(lvl, List.of()).size();
+		return unknown.getOrDefault(lvl, Collections.emptyList()).size();
 	}
 	
 	private static class Research implements Option {
@@ -86,11 +88,13 @@ class DefensiveSpells {
 	private static Spell shield = new Shield();
 	private static Spell energyShield = new MultiSpell("Energy Shield", color, "Summon a shield protecting your energy deck from attack.", EnergyShield::all);
 
-	private static Map<Integer, List<Spell>> unknown = new HashMap<Integer, List<Spell>>(Map.of(
-			1, new ArrayList<Spell>(List.of(sandStorm, strongWalls, quickSand)),
-			2, new ArrayList<Spell>(List.of(golems, matrix, moat)),
-			3, new ArrayList<Spell>(List.of(fireGolems, shield, energyShield))));
-	private static List<Spell> learned = new LinkedList<Spell>(List.of(walls));
+	private static Map<Integer, List<Spell>> unknown = new HashMap<Integer, List<Spell>>();
+	static {
+		unknown.put(1, new ArrayList<Spell>(Arrays.asList(sandStorm, strongWalls, quickSand)));
+		unknown.put(2, new ArrayList<Spell>(Arrays.asList(golems, matrix, moat)));
+		unknown.put(3, new ArrayList<Spell>(Arrays.asList(fireGolems, shield, energyShield)));
+	}
+	private static List<Spell> learned = new LinkedList<Spell>(Arrays.asList(walls));
 	static int maxLevel = 1;
 	
 	private static class SimpleDefensive implements Spell {

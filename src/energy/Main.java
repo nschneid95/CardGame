@@ -64,7 +64,10 @@ public class Main {
 			int lower = 0;
 			int upper = -1;
 			while (width != lower) {
-				System.out.println("=".repeat(width));
+				StringBuilder equalsBuilder = new StringBuilder();
+				for (int i = 0; i < width; i++)
+					equalsBuilder.append("=");
+				System.out.println(equalsBuilder.toString());
 				if (chooseYesNo("Does the above bar fit on one line (Y/N)?")) {
 					lower = width;
 					if (upper > 0)
@@ -158,7 +161,7 @@ public class Main {
 		System.out.println("Please enter a difficulty ranging from 1 (easiest) to 10 (hardest):");
 		Optional<Integer> difficulty = Optional.empty();
 		boolean first = true;
-		while (difficulty.isEmpty() || difficulty.get() < 1 || difficulty.get() > 10) {
+		while (!difficulty.isPresent() || difficulty.get() < 1 || difficulty.get() > 10) {
 			if (!first)
 				System.out.println("Please enter a number between 1 and 10");
 			difficulty = chooseInt("", "Please enter a number between 1 and 10");

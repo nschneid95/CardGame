@@ -1,5 +1,6 @@
 package energy;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -81,7 +82,7 @@ class Printer {
 	
 	private static List<ColoredString> wrapLine(ColoredString line, int maxWidth, int indent) {
 		if (line.length() < maxWidth)
-			return List.of(line);
+			return Arrays.asList(line);
 		List<ColoredString> ret = new LinkedList<ColoredString>();
 		List<ColoredString> curr = new LinkedList<ColoredString>();
 		int currLength = 0;

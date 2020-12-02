@@ -1,6 +1,8 @@
 package energy;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,7 +23,7 @@ public class Prayers {
 	}
 	
 	public static int numPrayers() {
-		return remaining.getOrDefault(maxLevel, List.of()).size();
+		return remaining.getOrDefault(maxLevel, Collections.emptyList()).size();
 	}
 	
 	public static int getLevel() { return maxLevel; }
@@ -96,10 +98,12 @@ public class Prayers {
 		private int level;
 	}
 	
-	private static Map<Integer, List<Prayer>> remaining = new HashMap<Integer, List<Prayer>>(Map.of(
-			1, new ArrayList<Prayer>(List.of(new NextLevel(), new ResearchPoint(), new Channel(EnergyType.AIR))),
-			2, new ArrayList<Prayer>(List.of(new Channel(EnergyType.WATER), new ResearchPoint(), new NextLevel())),
-			3, new ArrayList<Prayer>(List.of(new Channel(EnergyType.EARTH), new Channel(EnergyType.FIRE), new ResearchPoint()))));
+	private static Map<Integer, List<Prayer>> remaining = new HashMap<Integer, List<Prayer>>();
+	static {
+		remaining.put(1, new ArrayList<Prayer>(Arrays.asList(new NextLevel(), new ResearchPoint(), new Channel(EnergyType.AIR))));
+		remaining.put(2, new ArrayList<Prayer>(Arrays.asList(new Channel(EnergyType.WATER), new ResearchPoint(), new NextLevel())));
+		remaining.put(3, new ArrayList<Prayer>(Arrays.asList(new Channel(EnergyType.EARTH), new Channel(EnergyType.FIRE), new ResearchPoint())));
+	}
 	
 	private interface Prayer {
 		void execute(Game game);

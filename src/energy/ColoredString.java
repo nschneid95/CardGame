@@ -1,5 +1,7 @@
 package energy;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -47,11 +49,11 @@ class ColoredString {
 	}
 	
 	ColoredString(String s, Color c) {
-		pieces = List.of(new Piece(s, c));
+		pieces = Arrays.asList(new Piece(s, c));
 	}
 	
 	ColoredString(String s) {
-		pieces = List.of(new Piece(s, Color.Default));
+		pieces = Arrays.asList(new Piece(s, Color.Default));
 	}
 	
 	private ColoredString(List<Piece> pieces) {
@@ -193,24 +195,26 @@ class ColoredString {
 		final private Color c;
 		
 		private final static String resetCode = "\u001B[0m";
-		private final static Map<Color, String> colorCodes = Map.ofEntries(
-				Map.entry(Color.Black, "\u001B[30m"),
-				Map.entry(Color.Red, "\u001B[31m"),
-				Map.entry(Color.Green, "\u001B[32m"),
-				Map.entry(Color.Yellow, "\u001B[33m"),
-				Map.entry(Color.Blue, "\u001B[34m"),
-				Map.entry(Color.Purple, "\u001B[35m"),
-				Map.entry(Color.Cyan, "\u001B[36m"),
-				Map.entry(Color.White, "\u001B[37m"),
-				Map.entry(Color.BrightBlack, "\u001B[30;1m"),
-				Map.entry(Color.BrightRed, "\u001B[31;1m"),
-				Map.entry(Color.BrightGreen, "\u001B[32;1m"),
-				Map.entry(Color.BrightYellow, "\u001B[33;1m"),
-				Map.entry(Color.BrightBlue, "\u001B[34;1m"),
-				Map.entry(Color.BrightPurple, "\u001B[35;1m"),
-				Map.entry(Color.BrightCyan, "\u001B[36;1m"),
-				Map.entry(Color.BrightWhite, "\u001B[37;1m"),
-				Map.entry(Color.Default, ""));
+		private static Map<Color, String> colorCodes = new HashMap<Color, String>();
+		static {
+			colorCodes.put(Color.Black, "\u001B[30m");
+			colorCodes.put(Color.Red, "\u001B[31m");
+			colorCodes.put(Color.Green, "\u001B[32m");
+			colorCodes.put(Color.Yellow, "\u001B[33m");
+			colorCodes.put(Color.Blue, "\u001B[34m");
+			colorCodes.put(Color.Purple, "\u001B[35m");
+			colorCodes.put(Color.Cyan, "\u001B[36m");
+			colorCodes.put(Color.White, "\u001B[37m");
+			colorCodes.put(Color.BrightBlack, "\u001B[30;1m");
+			colorCodes.put(Color.BrightRed, "\u001B[31;1m");
+			colorCodes.put(Color.BrightGreen, "\u001B[32;1m");
+			colorCodes.put(Color.BrightYellow, "\u001B[33;1m");
+			colorCodes.put(Color.BrightBlue, "\u001B[34;1m");
+			colorCodes.put(Color.BrightPurple, "\u001B[35;1m");
+			colorCodes.put(Color.BrightCyan, "\u001B[36;1m");
+			colorCodes.put(Color.BrightWhite, "\u001B[37;1m");
+			colorCodes.put(Color.Default, "");
+		}
 	}
 }
 

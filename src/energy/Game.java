@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class Game {
 	// Difficulty ranges from 1 (easiest) to 10 (hardest)
@@ -198,7 +199,7 @@ public class Game {
 	
 	private String getValByLevel(Function<Integer, Integer> func, int maxLevel) {
 		return String.join("/", 
-				List.of(1, 2, 3).stream()
+				Stream.of(1, 2, 3)
 				.sorted()
 				.filter(x -> x <= maxLevel)
 				.map(func)

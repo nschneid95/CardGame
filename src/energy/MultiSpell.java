@@ -37,7 +37,7 @@ class MultiSpell implements Spell {
 
 	@Override
 	public void execute(Game game) throws IllegalStateException {
-		Option[] filteredOptions = options.get().takeWhile(x -> x.isAllowed(game)).toArray(Option[]::new);
+		Option[] filteredOptions = options.get().filter(x -> x.isAllowed(game)).toArray(Option[]::new);
 		int i = Selection.makeSelection(filteredOptions);
 		filteredOptions[i].execute(game);
 	}
